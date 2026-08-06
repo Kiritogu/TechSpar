@@ -15,7 +15,7 @@ from backend.config import settings
 from backend.llm_provider import get_langchain_llm
 from backend.indexer import query_resume
 from backend.memory import get_profile_summary
-from backend.prompts.interviewer import RESUME_INTERVIEWER_SYSTEM
+from backend.prompts.interviewer import RESUME_FAREWELL_PROMPT, RESUME_INTERVIEWER_SYSTEM
 
 logger = logging.getLogger("uvicorn")
 
@@ -165,6 +165,32 @@ def _make_interviewer_ask(user_id: str):
     return interviewer_ask
 
 
+def _make_farewell(user_id: str):
+    """Create farewell node bound to a specific user.
+
+    Runs right before the graph ends (reverse_qa 问满 / 到达结束条件):让面试官
+    基于完整对话生成一句告别语,避免候选人答完最后一道题后界面直接切走。
+    """
+    async def farewell(state: ResumeInterviewState) -> dict:
+        lines = []
+        for m in state.get("messages", []):
+            who = "面试官" if isinstance(m, AIMessage) else "候选人"
+            content = str(getattr(m, "content", "")).strip()
+            if content:
+                lines.append(f"{who}: {content}")
+        conversation = "\n".join(lines)
+        if len(conversation) > 4000:
+            # 只保留最近的对话,避免长会话撑爆上下文
+            conversation = conversation[-4000:]
+
+        llm = get_langchain_llm(user_id)
+        response = await llm.ainvoke([
+            SystemMessage(content=RESUME_FAREWELL_PROMPT.format(conversation=conversation)),
+        ])
+        return {"messages": [AIMessage(content=str(response.content))]}
+    return farewell
+
+
 def route_after_answer(state: ResumeInterviewState) -> str:
     """After user answers: keep asking, advance phase, or end."""
     if state.get("is_finished"):
@@ -243,18 +269,21 @@ def compile_resume_interview(user_id: str):
     graph.add_node("ask", _make_interviewer_ask(user_id))
     graph.add_node("advance", advance_phase)
     graph.add_node("wait", wait_for_answer)
+    graph.add_node("farewell", _make_farewell(user_id))
     graph.add_node("end_node", end_interview)
 
     graph.add_edge(START, "init")
     graph.add_edge("init", "wait")
     graph.add_edge("ask", "wait")
     graph.add_edge("advance", "ask")
+    graph.add_edge("farewell", "end_node")
     graph.add_edge("end_node", END)
 
     graph.add_conditional_edges("wait", route_after_answer, {
         "ask": "ask",
         "advance": "advance",
-        "end": "end_node",
+        # 先让面试官说告别语,再进入 end_node 标记 is_finished
+        "end": "farewell",
     })
 
     return graph.compile(

@@ -12,7 +12,6 @@ import {
   Mic,
   Repeat,
   ShieldAlert,
-  Sparkles,
   Target,
   TrendingUp,
 } from "lucide-react";
@@ -69,7 +68,7 @@ const LOOP_MODULES = [
     accentBg: "bg-teal/10",
     accentText: "text-teal",
     previewClass: "border-teal/15 bg-teal/[0.05]",
-    nodeClass: "absolute z-20 left-1/2 top-[2%] w-[164px] -translate-x-1/2",
+    nodeClass: "absolute z-20 right-[3%] top-[14%] w-[164px]",
     glowColor: "rgba(13,148,136,0.18)",
   },
   {
@@ -93,37 +92,12 @@ const LOOP_MODULES = [
     accentBg: "bg-orange/10",
     accentText: "text-orange",
     previewClass: "border-orange/15 bg-orange/[0.05]",
-    nodeClass: "absolute z-20 right-[3%] top-[14%] w-[164px]",
+    nodeClass: "absolute z-20 right-[3%] bottom-[8%] w-[164px]",
     glowColor: "rgba(251,146,60,0.18)",
   },
   {
-    key: "copilot",
-    step: "04",
-    icon: Brain,
-    title: "实时 Copilot",
-    headline: "预测下一步追问",
-    desc: "进入真实面试后，系统持续转写 HR 发言，预测追问方向，并给出回答建议与高危路径提醒。",
-    reads: ["HR 发言", "JD 风险路径", "历史画像"],
-    preview: [
-      { label: "HR", tone: "text-teal", text: "如果线上流量翻倍，你会先动哪一层？" },
-      { label: "预测", tone: "text-primary", text: "大概率追问容量、缓存和降级策略。" },
-      { label: "建议", tone: "text-teal", text: "先给容量判断，再补监控指标和回滚方案。" },
-    ],
-    writeback: ["追问路径", "风险模式", "回答偏差"],
-    chipClass: "bg-teal/10 text-teal",
-    iconClass: "bg-teal/12 text-teal",
-    borderClass: "border-teal/25",
-    accentBorder: "border-teal/20",
-    accentBg: "bg-teal/10",
-    accentText: "text-teal",
-    previewClass: "border-teal/15 bg-teal/[0.06]",
-    nodeClass: "absolute z-20 right-[4%] bottom-[16%] w-[176px]",
-    highlight: true,
-    glowColor: "rgba(20,184,166,0.22)",
-  },
-  {
     key: "recording",
-    step: "05",
+    step: "04",
     icon: Mic,
     title: "录音复盘",
     headline: "把实战失误写回系统",
@@ -132,7 +106,7 @@ const LOOP_MODULES = [
     preview: [
       { label: "录音", tone: "text-orange", text: "自动转写并拆成结构化 Q&A。" },
       { label: "系统", tone: "text-primary", text: "定位表达问题、内容缺口和失误模式。" },
-      { label: "写回", tone: "text-teal", text: "把复盘结果反哺到下一轮训练和 Copilot。" },
+      { label: "写回", tone: "text-teal", text: "把复盘结果反哺到下一轮训练和画像。" },
     ],
     writeback: ["失误模式", "表达问题", "改进建议"],
     chipClass: "bg-orange/10 text-orange",
@@ -168,16 +142,6 @@ const STORY_WORDS = [
       rows: ["从画像决定问什么", "优先补薄弱点", "沿用历史错因"],
     },
   },
-  {
-    key: "companion",
-    word: "实战陪跑",
-    desc: "真实面试里，Copilot 沿着你的高危路径预测下一步追问，把准备一路带进实战。",
-    gradient: "bg-[radial-gradient(ellipse_at_50%_18%,rgba(52,211,153,0.22),transparent_58%),radial-gradient(ellipse_at_82%_30%,rgba(20,184,166,0.18),transparent_52%)]",
-    memory: {
-      title: "实战中预测",
-      rows: ["高危路径已载入", "下一问: 缓存与降级", "建议: 先给容量判断"],
-    },
-  },
 ];
 
 const MOMENTS = [
@@ -207,14 +171,6 @@ const MOMENTS = [
   },
   {
     num: "04",
-    ui: "copilot",
-    title: "追问被预判了",
-    desc: "真实面试里持续转写 HR 发言，预测下一步追问，提前半步给你建议。",
-    tilt: "-rotate-1",
-    chip: "bg-primary text-primary-foreground",
-  },
-  {
-    num: "05",
     ui: "review",
     title: "失误写回系统",
     desc: "录音自动转写、逐题复盘，失分点回流画像，下一轮训练更贴近真实。",
@@ -222,7 +178,7 @@ const MOMENTS = [
     chip: "bg-primary text-primary-foreground",
   },
   {
-    num: "06",
+    num: "05",
     ui: "offer",
     title: "一切都值得",
     desc: "从第一轮刷题到真实 Offer，系统记得你走过的每一步。",
@@ -316,7 +272,7 @@ export default function Landing() {
           <div className="flex items-center gap-2.5">
             <Logo className="h-8 w-8 rounded-lg drop-shadow-sm" />
             <div>
-              <div className="text-lg font-display font-bold leading-none">TechSpar</div>
+              <div className="text-lg font-display font-bold leading-none">OfferSpar</div>
               <div className="mt-1 text-[11px] uppercase tracking-[0.24em] text-dim">From Practice To Real Interview</div>
             </div>
           </div>
@@ -400,7 +356,7 @@ export default function Landing() {
 
             <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row animate-fade-in-up [animation-delay:0.2s]">
               <Button variant="gradient" size="lg" onClick={() => navigate("/login")}>
-                在线体验
+                开始备战
                 <ArrowRight size={16} />
               </Button>
               <button
@@ -430,7 +386,7 @@ export default function Landing() {
               <SectionHeading
                 label="面试闭环"
                 title="这套闭环怎么运转"
-                desc="五个模块不是五个孤岛：每个模块的输入与输出都会写回同一套长期记忆，驱动下一轮训练、辅助和复盘。"
+                desc="四个模块不是四个孤岛：每个模块的输入与输出都会写回同一套长期记忆，驱动下一轮训练、辅助和复盘。"
               />
             </div>
 
@@ -469,7 +425,7 @@ export default function Landing() {
               <SectionHeading
                 label="真实时刻"
                 title="那些真正帮上忙的时刻。"
-                desc="不是功能清单，而是 TechSpar 进入备面日常之后，一次次接住麻烦、记得你、把事情往前推的瞬间。"
+                desc="不是功能清单，而是 OfferSpar 进入备面日常之后，一次次接住麻烦、记得你、把事情往前推的瞬间。"
               />
             </div>
 
@@ -557,7 +513,7 @@ export default function Landing() {
                 className="shadow-[0_16px_40px_-18px_rgba(5,150,105,0.5)] transition-shadow hover:shadow-[0_20px_48px_-16px_rgba(5,150,105,0.55)]"
                 onClick={() => navigate("/login")}
               >
-                进入 Demo
+                进入应用
                 <ArrowRight size={16} />
               </Button>
             </div>
@@ -569,17 +525,17 @@ export default function Landing() {
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 text-center">
           <div className="flex items-center gap-2.5">
             <Logo className="h-7 w-7" />
-            <span className="font-display font-bold">TechSpar</span>
+            <span className="font-display font-bold">OfferSpar</span>
           </div>
           <p className="text-xs text-dim">从刷题到实战的 AI 技术面试陪练系统</p>
           <div className="flex gap-6 text-xs">
             <a
-              href="https://techspar.top/"
+              href="https://yongbo.xyz/"
               target="_blank"
               rel="noreferrer"
               className="text-dim transition-colors hover:text-text"
             >
-              在线 Demo
+              访问应用
             </a>
           </div>
         </div>
@@ -680,19 +636,6 @@ function MomentUI({ variant }) {
           </div>
         </div>
       );
-    case "copilot":
-      return (
-        <div className="flex h-full flex-col justify-center gap-2 px-5 py-4">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/70">实时预测</div>
-          <div className="rounded-xl border border-teal/25 bg-teal/[0.06] px-3 py-2 text-[11px] leading-5">
-            <span className="font-semibold text-teal">HR:</span> 线上流量翻倍，你会先动哪一层？
-          </div>
-          <div className="rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-[11px] leading-5">
-            <span className="font-semibold text-primary">预测:</span> 大概率追问容量、缓存、降级策略
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-teal"><Sparkles size={12} /> 建议先给容量判断，再补监控指标</div>
-        </div>
-      );
     case "review":
       return (
         <div className="flex h-full flex-col justify-center gap-2.5 px-5 py-4">
@@ -771,7 +714,7 @@ function StoryScreens() {
         <div className="absolute inset-0 bg-gradient-to-b from-bg/60 via-transparent to-bg/80" />
 
         <div className="relative w-full px-6 text-center">
-          <div className="text-sm font-medium text-primary">为什么 TechSpar 不只是一个题库？</div>
+          <div className="text-sm font-medium text-primary">为什么 OfferSpar 不只是一个题库？</div>
 
           <div className="relative mx-auto mt-6 h-56 w-full max-w-3xl md:h-64">
             {STORY_WORDS.map((item, index) => (
@@ -820,8 +763,8 @@ function StoryScreens() {
 }
 
 function LoopVisual() {
-  const [activeKey, setActiveKey] = useState("copilot");
-  const activeModule = LOOP_MODULES.find((item) => item.key === activeKey) || LOOP_MODULES[3];
+  const [activeKey, setActiveKey] = useState("recording");
+  const activeModule = LOOP_MODULES.find((item) => item.key === activeKey) || LOOP_MODULES[0];
 
   return (
     <div className="relative">
@@ -875,7 +818,7 @@ function LoopVisual() {
             <circle cx="220" cy="310" r="176" stroke="rgba(5,150,105,0.14)" strokeWidth="1.5" strokeDasharray="10 16" />
             <circle cx="220" cy="310" r="138" stroke="rgba(20,184,166,0.08)" strokeWidth="1.2" />
             <path
-              d="M78 168 A176 176 0 0 1 220 134"
+              d="M96 186 A176 176 0 0 1 344 186"
               stroke="rgba(5,150,105,0.32)"
               strokeWidth="2"
               strokeLinecap="round"
@@ -884,46 +827,36 @@ function LoopVisual() {
               style={{ "--beam-delay": "0s" }}
             />
             <path
-              d="M224 134 A176 176 0 0 1 362 172"
+              d="M344 186 A176 176 0 0 1 344 434"
               stroke="rgba(13,148,136,0.3)"
               strokeWidth="2"
               strokeLinecap="round"
               markerEnd="url(#loop-arrow)"
               className="loop-beam"
-              style={{ "--beam-delay": "0.4s" }}
+              style={{ "--beam-delay": "0.9s" }}
             />
             <path
-              d="M362 176 A176 176 0 0 1 340 432"
-              stroke="rgba(5,150,105,0.3)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              markerEnd="url(#loop-arrow)"
-              className="loop-beam"
-              style={{ "--beam-delay": "0.8s" }}
-            />
-            <path
-              d="M336 436 A176 176 0 0 1 116 500"
-              stroke="rgba(20,184,166,0.32)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              markerEnd="url(#loop-arrow)"
-              className="loop-beam"
-              style={{ "--beam-delay": "1.2s" }}
-            />
-            <path
-              d="M112 494 A176 176 0 0 1 78 168"
+              d="M344 434 A176 176 0 0 1 96 434"
               stroke="rgba(251,146,60,0.28)"
               strokeWidth="2"
               strokeLinecap="round"
               markerEnd="url(#loop-arrow)"
               className="loop-beam"
-              style={{ "--beam-delay": "1.6s" }}
+              style={{ "--beam-delay": "1.8s" }}
             />
-            <path d="M220 310 L78 168" stroke="rgba(5,150,105,0.08)" strokeWidth="1.5" />
-            <path d="M220 310 L220 134" stroke="rgba(13,148,136,0.08)" strokeWidth="1.5" />
-            <path d="M220 310 L362 172" stroke="rgba(5,150,105,0.08)" strokeWidth="1.5" />
-            <path d="M220 310 L340 432" stroke="rgba(20,184,166,0.08)" strokeWidth="1.5" />
-            <path d="M220 310 L116 500" stroke="rgba(251,146,60,0.08)" strokeWidth="1.5" />
+            <path
+              d="M96 434 A176 176 0 0 1 96 186"
+              stroke="rgba(5,150,105,0.32)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              markerEnd="url(#loop-arrow)"
+              className="loop-beam"
+              style={{ "--beam-delay": "2.7s" }}
+            />
+            <path d="M220 310 L96 186" stroke="rgba(5,150,105,0.08)" strokeWidth="1.5" />
+            <path d="M220 310 L344 186" stroke="rgba(13,148,136,0.08)" strokeWidth="1.5" />
+            <path d="M220 310 L344 434" stroke="rgba(251,146,60,0.08)" strokeWidth="1.5" />
+            <path d="M220 310 L96 434" stroke="rgba(251,146,60,0.08)" strokeWidth="1.5" />
           </svg>
 
           {LOOP_MODULES.map((item) => (
@@ -1024,7 +957,7 @@ function DetailPanel({ module, compact = false }) {
               module.accentText
             )}
           >
-            {module.step} / 05
+            {module.step} / {String(LOOP_MODULES.length).padStart(2, "0")}
             <span className="text-dim">当前聚焦模块</span>
           </div>
           <div className="text-xs text-dim">点击环上节点查看不同阶段</div>

@@ -49,6 +49,10 @@ tencentcloud-sdk-python-common>=3.0.1000
 # 导入名仍是 webrtcvad，与 backend/copilot/vad_segmenter.py 的 `import webrtcvad` 兼容。
 webrtcvad-wheels>=2.0.12
 
+# Text-to-speech (DashScope qwen3-tts-flash 流式语音播报；key 与 STT 共用)
+# httpx 异步流式请求 DashScope SSE；此前仅靠 fastapi/starlette 传递依赖，显式声明。
+httpx>=0.27.0
+
 # Utils
 python-dotenv>=1.0.0
 pydantic>=2.0.0

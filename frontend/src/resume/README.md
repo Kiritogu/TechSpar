@@ -9,7 +9,7 @@
 全文见本目录 [`LICENSE`](./LICENSE)。要点:
 
 - 仅限个人非商业用途免费使用;任何商业化使用(SaaS、嵌入商业产品、二开商用等)须先获得上游作者的商业授权。
-- TechSpar 本身为 CC BY-NC 4.0 的非商业开源项目,与上述条款不冲突;但如果你 fork 本项目并商用,需自行处理本目录的授权问题。
+- OfferSpar 本身为 CC BY-NC 4.0 的非商业开源项目,与上述条款不冲突;但如果你 fork 本项目并商用,需自行处理本目录的授权问题。
 
 ## 相对上游的主要改动(Apache 2.0 §4 要求的变更声明)
 
@@ -21,7 +21,7 @@
 - **字体**:不再随仓库分发上游的 ttf/otf 字体原件(约 149MB),改用 `@fontsource/noto-sans-sc`、`@fontsource/noto-serif-sc`(SIL OFL)自托管 woff2 切片,按 unicode-range 按需加载;另保留系统楷体选项(`utils/fonts.ts`、`styles/fonts.ts`)。
 - **模板缩略图**:删除 Playwright 生成的静态 PNG 快照,改为用当前简历数据实时缩放渲染(`shared/TemplateSheet.tsx`)。
 - **HeroUI**:移除仅剩的两个 HeroUI 日期输入组件,日期字段改为自由文本输入(`editor/Field.tsx`)。
-- **杂项**:lodash 用内联 throttle/debounce 替代;uuid 依赖改为 `crypto.randomUUID`;`tiptap.scss` 预编译为 CSS;样式令牌桥接到 TechSpar 的 Tailwind 4 主题变量。
+- **杂项**:lodash 用内联 throttle/debounce 替代;uuid 依赖改为 `crypto.randomUUID`;`tiptap.scss` 预编译为 CSS;样式令牌桥接到 OfferSpar 的 Tailwind 4 主题变量。
 
 ## 入口
 

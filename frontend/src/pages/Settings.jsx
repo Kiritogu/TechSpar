@@ -35,7 +35,7 @@ import {
 } from "../api/voiceprint";
 import { exportData, importData } from "../api/dataMigration";
 import { cn } from "@/lib/utils";
-import { LLM_PROVIDERS, EMBEDDING_PROVIDERS, matchProvider } from "@/lib/providers";
+import { LLM_PROVIDERS, EMBEDDING_PROVIDERS, TTS_VOICES, matchProvider } from "@/lib/providers";
 import ProviderSelect from "@/components/ProviderSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -141,6 +141,7 @@ export default function Settings() {
 
   // 可选服务密钥（每用户，对应功能开关）
   const [dashscopeKey, setDashscopeKey] = useState("");
+  const [ttsVoice, setTtsVoice] = useState("");
   const [tavilyKey, setTavilyKey] = useState("");
   const [ossKeyId, setOssKeyId] = useState("");
   const [ossKeySecret, setOssKeySecret] = useState("");
@@ -238,6 +239,7 @@ export default function Settings() {
         setEmbLocalPath(emb.local_path || "");
         const svc = data.services || {};
         setDashscopeKey(svc.dashscope_api_key || "");
+        setTtsVoice(svc.tts_voice || "");
         setTavilyKey(svc.tavily_api_key || "");
         setOssKeyId(svc.oss_access_key_id || "");
         setOssKeySecret(svc.oss_access_key_secret || "");
@@ -516,6 +518,7 @@ export default function Settings() {
         },
         services: {
           dashscope_api_key: dashscopeKey,
+          tts_voice: ttsVoice,
           tavily_api_key: tavilyKey,
           oss_access_key_id: ossKeyId,
           oss_access_key_secret: ossKeySecret,
@@ -986,7 +989,7 @@ export default function Settings() {
                   <Input
                     className={cn(inputClass, "pr-11")}
                     type={showDashscope ? "text" : "password"}
-                    placeholder="sk-...（语音输入 / 录音转写 / Copilot 实时识别）"
+                    placeholder="sk-...（语音输入 / 录音转写 / Copilot 实时识别 / 语音播报）"
                     value={dashscopeKey}
                     onChange={(e) => setDashscopeKey(e.target.value)}
                   />
@@ -998,7 +1001,29 @@ export default function Settings() {
                     {showDashscope ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-                <div className="text-[12px] text-dim/70">阿里云百炼（DashScope）。不填则语音相关功能不可用。</div>
+                <div className="text-[12px] text-dim/70">
+                  阿里云百炼（DashScope）。语音识别（STT）与语音播报（TTS）共用此 key，不填则语音相关功能不可用。
+                </div>
+              </div>
+
+              {/* TTS 音色 */}
+              <div className="space-y-2 border-t border-border/40 pt-5">
+                <Label className={labelClass}>语音播报音色（TTS）</Label>
+                <select
+                  className={cn(inputClass, "w-full cursor-pointer appearance-none rounded-2xl border border-border bg-card/90 px-4 text-[14px] text-text outline-none transition-colors focus:border-primary/50")}
+                  value={TTS_VOICES.some((v) => v.value === ttsVoice) ? ttsVoice : ""}
+                  onChange={(e) => setTtsVoice(e.target.value)}
+                >
+                  <option value="">默认（Cherry）</option>
+                  {TTS_VOICES.map((v) => (
+                    <option key={v.value} value={v.value}>
+                      {v.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="text-[12px] text-dim/70">
+                  面试官语音播报的音色（DashScope qwen3-tts-flash）。留空用默认 Cherry。
+                </div>
               </div>
 
               {/* Tavily */}

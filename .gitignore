@@ -49,6 +49,10 @@ design/
 # Claude Code local state (worktrees, settings)
 .claude/
 
+# Deploy artifacts (server-side only)
+certs/
+certbot-webroot/
+
 # IDE / editor local state
 .idea/
 

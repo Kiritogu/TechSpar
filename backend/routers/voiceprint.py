@@ -65,7 +65,7 @@ async def voiceprint_enroll(
     if len(pcm_bytes) < 64000:
         raise HTTPException(400, "录音太短，至少 2 秒")
 
-    speaker_nick = f"techspar_{user_id}"
+    speaker_nick = f"offerspar_{user_id}"
     voice_print_id = await client.enroll(speaker_nick, pcm_bytes)
     if not voice_print_id:
         raise HTTPException(500, "腾讯云声纹注册失败，请检查日志")

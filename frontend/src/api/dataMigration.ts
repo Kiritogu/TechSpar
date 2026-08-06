@@ -8,7 +8,7 @@ export async function exportData(): Promise<{ filename: string; size: number }> 
   if (!res.ok) throw new Error(await res.text());
 
   const blob = await res.blob();
-  let filename = "techspar-backup.tar.gz";
+  let filename = "offerspar-backup.tar.gz";
   const disposition = res.headers.get("content-disposition");
   if (disposition) {
     const m = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(disposition);

@@ -20,6 +20,7 @@ from backend.routers import (
     resume,
     settings,
     topics,
+    tts,
     voiceprint,
 )
 from backend.graphs.resume_interview import init_resume_checkpointer
@@ -34,7 +35,7 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="TechSpar", version="0.2.0", lifespan=lifespan)
+    app = FastAPI(title="OfferSpar", version="0.2.0", lifespan=lifespan)
     app.add_middleware(CurrentUserMiddleware)
     app.add_middleware(
         CORSMiddleware,
@@ -42,6 +43,11 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.get("/api/health")
+    async def health() -> dict:
+        """公开健康检查端点(无鉴权),供 docker compose healthcheck 与 uptime 监控使用。"""
+        return {"status": "ok"}
 
     @app.exception_handler(ProviderNotConfigured)
     async def _provider_not_configured(_: Request, exc: ProviderNotConfigured):
@@ -60,6 +66,7 @@ def create_app() -> FastAPI:
     app.include_router(resume.router)
     app.include_router(recording.router)
     app.include_router(topics.router)
+    app.include_router(tts.router)
     app.include_router(profile.router)
     app.include_router(settings.router)
     app.include_router(voiceprint.router)

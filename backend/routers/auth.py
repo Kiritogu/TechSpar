@@ -33,4 +33,4 @@ def login(req: LoginRequest):
 
 @router.get("/")
 def root():
-    return {"service": "TechSpar", "version": "0.2.0"}
+    return {"service": "OfferSpar", "version": "0.2.0"}

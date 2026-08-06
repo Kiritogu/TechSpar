@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Check, Minus, Star } from "lucide-react";
+import { Check, Keyboard, Mic, Minus, Square, Star, Volume2, VolumeX } from "lucide-react";
 import ChatBubble from "../components/ChatBubble";
-import { sendMessage, sendMessageStream, endInterview, retryReview, getResumableSession, saveDraftAnswers } from "../api/interview";
+import { sendMessage, sendMessageStream, endInterview, retryReview, getResumableSession, saveDraftAnswers, getSettings } from "../api/interview";
 import useTaskStatus from "../hooks/useTaskStatus";
 import useVoiceInput from "../hooks/useVoiceInput";
+import useTTS from "../hooks/useTTS";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,8 @@ export default function Interview() {
   const { tasks, startTask } = useTaskStatus();
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
+  // 语音自动发送始终引用最新版发送函数,避免闭包捕获旧状态
+  const sendTextRef = useRef(null);
 
   // Session bootstrap: populate either from router state (fresh start) or by
   // fetching /interview/session/:id/resume (opened via history).
@@ -48,12 +51,49 @@ export default function Interview() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // TTS 可用性：后端是否配置 DashScope key。可用则面试官回复自动播报，无需手动点击。
+  const [ttsAvailable, setTtsAvailable] = useState();
+  const tts = useTTS(ttsAvailable);
+
+  useEffect(() => {
+    getSettings()
+      .then((data) => setTtsAvailable(Boolean(data.configured?.tts)))
+      .catch(() => setTtsAvailable(true)); // 拿不到设置时按可用处理；播放失败前端静默跳过
+  }, []);
   const drillVoice = useVoiceInput({
     onResult: useCallback((text) => setDrillInput((prev) => prev + text), []),
   });
+  // chat 模式语音:说完直接发送(静音自动停麦),不走输入框追加
   const chatVoice = useVoiceInput({
-    onResult: useCallback((text) => setInput((prev) => prev + text), []),
+    autoSend: true,
+    onAutoSend: useCallback((text) => sendTextRef.current?.(text), []),
+    onEmpty: useCallback(() => setVoiceHint("没听清，请再说一次"), []),
+    autoStopSilence: true,
   });
+
+  // 语音/文字输入模式(仅 chat 模式生效),偏好存 localStorage
+  const [inputMode, setInputMode] = useState(() => {
+    try {
+      return localStorage.getItem("interview-input-mode") === "voice" ? "voice" : "text";
+    } catch {
+      return "text";
+    }
+  });
+  const [voiceHint, setVoiceHint] = useState("");
+
+  const switchToVoice = useCallback(() => {
+    setInputMode("voice");
+    try { localStorage.setItem("interview-input-mode", "voice"); } catch {}
+    setVoiceHint("");
+    tts.stop(); // 用户要开口,先停面试官的语音,避免回声
+    chatVoice.start();
+  }, [tts, chatVoice]);
+
+  const switchToText = useCallback(() => {
+    setInputMode("text");
+    try { localStorage.setItem("interview-input-mode", "text"); } catch {}
+    chatVoice.cancel(); // 丢弃未说完的录音,不转写不发送
+  }, [chatVoice]);
 
   useEffect(() => {
     // Fresh start from a landing page → location.state carries everything.
@@ -213,18 +253,23 @@ export default function Interview() {
     }
   };
 
-  const handleSend = async () => {
-    const text = input.trim();
-    if (!text || sending) return;
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+  const handleSendText = async (text) => {
+    const clean = (text || "").trim();
+    if (!clean || sending) return;
+
+    // 用户发消息,先停面试官语音,避免回声干扰
+    tts.stop();
+    setMessages((prev) => [...prev, { role: "user", content: clean }]);
     setInput("");
     setSending(true);
+    setVoiceHint("");
 
     // Insert empty assistant message for streaming
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+    tts.startStream();
 
     try {
-      await sendMessageStream(sessionId, text, {
+      await sendMessageStream(sessionId, clean, {
         onToken: (token) => {
           setMessages((prev) => {
             const updated = [...prev];
@@ -232,8 +277,11 @@ export default function Interview() {
             updated[updated.length - 1] = { ...last, content: last.content + token };
             return updated;
           });
+          // 文字边出、语音边播:按句切分交给 TTS
+          tts.feedToken(token);
         },
         onDone: (data) => {
+          tts.flush();
           // Interview ended on its own (max rounds) — kick off review immediately
           // so the user never lands on a finished chat with no review running.
           if (data.is_finished) finishAndReview();
@@ -249,7 +297,7 @@ export default function Interview() {
     } catch {
       // SSE failed — fallback to non-streaming
       try {
-        const data = await sendMessage(sessionId, text);
+        const data = await sendMessage(sessionId, clean);
         setMessages((prev) => {
           const updated = [...prev];
           updated[updated.length - 1] = { role: "assistant", content: data.message };
@@ -268,6 +316,11 @@ export default function Interview() {
       textareaRef.current?.focus();
     }
   };
+
+  const handleSend = () => handleSendText(input);
+
+  // 让语音自动发送始终拿到最新版发送函数
+  sendTextRef.current = handleSendText;
 
   const startResumeReview = async () => {
     await endInterview(sessionId);
@@ -609,6 +662,26 @@ export default function Interview() {
             </span>
           )}
         </div>
+        <div className="flex items-center gap-2">
+          {!isBatchMode && (
+            <button
+              type="button"
+              onClick={() => (tts.speaking ? tts.stop() : tts.toggle())}
+              disabled={ttsAvailable === false}
+              className={cn(
+                "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[12px] transition-colors",
+                ttsAvailable === false
+                  ? "cursor-not-allowed border-border text-dim/50"
+                  : "cursor-pointer",
+                !tts.speaking && tts.enabled && "border-border/70 text-dim hover:text-text",
+                tts.speaking && "border-primary/30 bg-primary/10 text-primary"
+              )}
+              title={ttsAvailable === false ? "未配置 DashScope 语音服务，请到设置页填写 API Key" : tts.speaking ? "停止播报" : tts.enabled ? "关闭语音播报" : "开启语音播报"}
+            >
+              {tts.speaking ? <Square size={12} className="fill-current" /> : tts.enabled ? <Volume2 size={12} /> : <VolumeX size={12} />}
+              <span>{ttsAvailable === false ? "语音未配置" : tts.speaking ? "停止播报" : tts.enabled ? "播报已开" : "播报已关"}</span>
+            </button>
+          )}
         {(() => {
           const task = tasks.find((t) => t.id === sessionId);
           const taskDone = task?.status === "done" || sessionStatus === "reviewed";
@@ -649,6 +722,7 @@ export default function Interview() {
             </Button>
           );
         })()}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-6 md:px-6 md:py-8 flex flex-col gap-7 max-w-3xl w-full mx-auto">
@@ -660,7 +734,14 @@ export default function Interview() {
           </div>
         )}
         {messages.map((msg, i) => (
-          <ChatBubble key={i} role={msg.role} content={msg.content} />
+          <ChatBubble
+            key={i}
+            role={msg.role}
+            content={msg.content}
+            onSpeak={!isBatchMode && msg.role === "assistant" && tts.enabled && msg.content
+              ? () => tts.speakNow(msg.content)
+              : undefined}
+          />
         ))}
         {sending && messages.length > 0 && messages[messages.length - 1].role === "assistant" && !messages[messages.length - 1].content && (
           <div className="flex items-center gap-2 animate-fade-in opacity-75 -mt-4">
@@ -674,20 +755,99 @@ export default function Interview() {
       </div>
 
         <div className="px-4 pt-4 pb-5 md:px-6 md:pb-6 flex justify-center">
-          <div className="relative w-full max-w-3xl">
-            <textarea
-              ref={textareaRef}
-              className="w-full px-4 py-4 md:px-5 pr-12 min-h-[80px] max-h-[240px] rounded-2xl border border-border bg-card text-text resize-none text-[15px] leading-normal placeholder:text-dim/50 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary/30"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={chatVoice.isListening ? "正在录音..." : finished ? "面试已结束" : "输入你的回答... (Enter 发送)"}
-              disabled={finished || sending}
-              rows={3}
-            />
-            {chatVoice.isSupported && !finished && (
-              <div className="absolute bottom-4 right-3">
-                <MicButton voice={chatVoice} />
+          <div className="w-full max-w-3xl">
+            {/* 输入模式切换:文字 / 语音(仅 chat 模式) */}
+            {!isBatchMode && !finished && (
+              <div className="mx-auto mb-3 flex w-fit items-center gap-0.5 rounded-full border border-border bg-card p-1">
+                <button
+                  type="button"
+                  onClick={switchToText}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] transition-colors cursor-pointer",
+                    inputMode === "text" ? "bg-primary/12 text-primary font-medium" : "text-dim hover:text-text"
+                  )}
+                >
+                  <Keyboard size={13} />
+                  文字
+                </button>
+                <button
+                  type="button"
+                  onClick={switchToVoice}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] transition-colors cursor-pointer",
+                    inputMode === "voice" ? "bg-primary/12 text-primary font-medium" : "text-dim hover:text-text"
+                  )}
+                >
+                  <Mic size={13} />
+                  语音
+                </button>
+              </div>
+            )}
+
+            {!isBatchMode && inputMode === "voice" && !finished ? (
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card px-4 py-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (chatVoice.isListening) {
+                      setVoiceHint("");
+                      chatVoice.toggle();
+                    } else if (!chatVoice.isTranscribing && !sending) {
+                      setVoiceHint("");
+                      chatVoice.start();
+                    }
+                  }}
+                  disabled={chatVoice.isTranscribing || sending}
+                  className={cn(
+                    "h-16 w-16 rounded-full flex items-center justify-center transition-all cursor-pointer disabled:opacity-60",
+                    chatVoice.isListening
+                      ? "bg-red text-white animate-pulse-dot"
+                      : chatVoice.isTranscribing
+                        ? "bg-orange text-white animate-pulse-dot"
+                        : "bg-primary text-primary-foreground hover:bg-primary-hover shadow-[0_8px_24px_-10px_rgba(5,150,105,0.5)]"
+                  )}
+                  title={chatVoice.isListening ? "停止录音" : chatVoice.isTranscribing ? "正在识别..." : "开始说话"}
+                >
+                  {chatVoice.isListening ? <Square size={22} className="fill-current" /> : <Mic size={22} />}
+                </button>
+                <div className="text-[13px] text-dim">
+                  {chatVoice.isListening
+                    ? "请说话，停顿后自动发送…"
+                    : chatVoice.isTranscribing
+                      ? "正在识别…"
+                      : sending
+                        ? "正在等待面试官回复…"
+                        : voiceHint || "点击麦克风开始说话"}
+                </div>
+              </div>
+            ) : (
+              <div className="relative">
+                <textarea
+                  ref={textareaRef}
+                  className="w-full px-4 py-4 md:px-5 pr-12 min-h-[80px] max-h-[240px] rounded-2xl border border-border bg-card text-text resize-none text-[15px] leading-normal placeholder:text-dim/50 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary/30"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={isBatchMode ? (drillVoice.isListening ? "正在录音..." : "输入你的回答... (Enter 发送)") : chatVoice.isListening ? "正在录音..." : finished ? "面试已结束" : "输入你的回答... (Enter 发送)"}
+                  disabled={finished || sending}
+                  rows={3}
+                />
+                {chatVoice.isSupported && !finished && (
+                  <div className="absolute bottom-4 right-3">
+                    {isBatchMode ? (
+                      <MicButton voice={drillVoice} />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={switchToVoice}
+                        className="w-9 h-9 rounded-full flex items-center justify-center transition-all shrink-0 bg-hover text-dim hover:text-text cursor-pointer"
+                        title="语音输入（说完直接发送）"
+                      >
+                        <Mic size={16} />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

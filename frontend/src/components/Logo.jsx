@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-// TechSpar 成长标:一条持续上扬的弧线,末端收束成一片嫩叶。
+// OfferSpar 成长标:一条持续上扬的弧线,末端收束成一片嫩叶。
 // 隐喻"越练越升、持续成长"——呼应产品"长期记忆驱动的进化闭环"。
 // 单色翠玉绿,随主题 --primary 自适应,深浅通用。
 export default function Logo({ className }) {
@@ -10,7 +10,7 @@ export default function Logo({ className }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label="TechSpar"
+      aria-label="OfferSpar"
       shapeRendering="geometricPrecision"
       className={cn("shrink-0 block", className)}
     >

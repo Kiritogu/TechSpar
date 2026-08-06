@@ -337,9 +337,21 @@ def probe_embedding(config: dict) -> None:
 # ── Optional service credentials (per-user, no global fallback) ──
 
 def resolve_dashscope_key(user_id: str | None = None) -> str:
-    """DashScope key for ASR (语音输入 / 录音转写 / Copilot 实时)。未配置返回空串。"""
+    """DashScope key for ASR (语音输入 / 录音转写 / Copilot 实时) 与 TTS (语音播报)。
+    未配置返回空串。"""
     uid = _effective_uid(user_id)
     return load_user_services(uid).dashscope_api_key if uid else ""
+
+
+def resolve_tts_config(user_id: str | None = None) -> dict:
+    """DashScope 语音播报(TTS)配置：qwen3-tts-flash 固定，key 与 STT 共用。
+    返回 {api_key, voice}；voice 为空串时由调用方回落默认音色。"""
+    uid = _effective_uid(user_id)
+    s = load_user_services(uid) if uid else None
+    return {
+        "api_key": s.dashscope_api_key if s else "",
+        "voice": (s.tts_voice or "") if s else "",
+    }
 
 
 def resolve_tavily_key(user_id: str | None = None) -> str:
@@ -361,12 +373,17 @@ def resolve_oss_config(user_id: str | None = None) -> dict:
 
 
 def provider_status(user_id: str | None = None) -> dict:
-    """Whether the user has the two essentials configured. Drives the first-run
-    onboarding gate (DashScope/Tavily/OSS are optional and not checked here)."""
+    """Whether the user has the essentials configured. Drives the first-run
+    onboarding gate (Tavily/OSS are optional and not checked here). `tts` reflects
+    DashScope key presence — STT 与 TTS 共用该 key，前端据此决定是否自动播报。"""
     llm = resolve_llm_config(user_id)
     emb = resolve_embedding_config(user_id)
     if embedding_mode_of(emb["backend"], emb["api_base"], emb["api_key"]) == "api":
         emb_ok = bool(emb["api_key"])
     else:
         emb_ok = bool(emb["local_model"] or emb["local_path"])
-    return {"llm": bool(llm["api_key"] and llm["model"]), "embedding": emb_ok}
+    return {
+        "llm": bool(llm["api_key"] and llm["model"]),
+        "embedding": emb_ok,
+        "tts": bool(resolve_dashscope_key(user_id)),
+    }

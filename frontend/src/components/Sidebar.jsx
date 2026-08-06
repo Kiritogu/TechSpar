@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  User, BookOpen, GitFork, Clock, Mic, BriefcaseBusiness, Brain,
+  User, BookOpen, GitFork, Clock, Mic, BriefcaseBusiness,
   Target, FileText, FileUser, Settings as SettingsIcon,
   Sun, Moon, LogOut, Menu, X, ChevronLeft, ChevronRight,
 } from "lucide-react";
@@ -24,7 +24,6 @@ const NAV_ITEMS = [
   { path: "/resume-manager", label: "简历管理", icon: FileUser },
   { path: "/job-prep", label: "JD 备面", icon: BriefcaseBusiness },
   { path: "/recording", label: "录音复盘", icon: Mic },
-  { path: "/copilot", label: "面试 Copilot", icon: Brain },
   { path: "/knowledge", label: "题库", icon: BookOpen },
   { path: "/graph", label: "图谱", icon: GitFork },
   { path: "/history", label: "历史记录", icon: Clock },
@@ -97,7 +96,7 @@ export default function Sidebar() {
       <div className={cn("flex items-center shrink-0 py-5", collapsed ? "justify-center px-4" : "px-6 gap-2.5")}>
         <Logo className="w-7 h-7 rounded-lg shrink-0 drop-shadow-sm" />
         {!collapsed && (
-          <span className="text-lg font-display font-bold text-sidebar-foreground translate-y-[1px]">TechSpar</span>
+          <span className="text-lg font-display font-bold text-sidebar-foreground translate-y-[1px]">OfferSpar</span>
         )}
       </div>
 
@@ -170,7 +169,7 @@ export default function Sidebar() {
       <div className="md:hidden flex items-center justify-between px-4 py-3 bg-card border-b border-border shrink-0">
         <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setOpenPath(null); navigate("/"); }}>
           <Logo className="w-7 h-7 rounded-lg drop-shadow-sm" />
-          <span className="text-base font-display font-bold text-text translate-y-[1px]">TechSpar</span>
+          <span className="text-base font-display font-bold text-text translate-y-[1px]">OfferSpar</span>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setOpenPath(open ? null : location.pathname)}>
           {open ? <X size={18} /> : <Menu size={18} />}

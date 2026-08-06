@@ -5,7 +5,7 @@
 
 **把专项训练、简历面试、JD 备面、实时 Copilot 与录音复盘，串成一个持续进化的技术面试闭环。**
 
-[在线 Demo](https://techspar.top/) · [快速开始](#快速开始) · [English](README.en.md)
+[在线体验](https://yongbo.xyz/) · [快速开始](#快速开始) · [English](README.en.md)
 
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com/)
@@ -71,7 +71,7 @@ TechSpar 要解决的不是“生成更多题”，而是把一次次训练、�
 
 ## 在线体验
 
-直接体验：**[https://techspar.top/](https://techspar.top/)**
+直接体验：**[https://yongbo.xyz/](https://yongbo.xyz/)**
 
 在登录页**注册一个自己的账号**即可开始——每个账号数据互相隔离。首次登录有两步引导，让你填入**自己的** LLM 和 Embedding API Key（演示环境不共享 key，也不会用到别人的）。
 

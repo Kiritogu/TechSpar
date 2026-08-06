@@ -1398,6 +1398,12 @@ export interface components {
              * @default
              */
             oss_endpoint: string;
+            /**
+             * Tts Voice
+             * @description 语音播报音色（DashScope qwen3-tts-flash），空 = 后端默认
+             * @default
+             */
+            tts_voice: string;
         };
         /**
          * SettingsResponse

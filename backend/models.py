@@ -189,12 +189,13 @@ class EmbeddingSettings(BaseModel):
 class ServiceSettings(BaseModel):
     """Per-user optional service credentials. Each gates one feature; empty = that
     feature stays off for this user (no global fallback)."""
-    dashscope_api_key: str = ""   # 语音输入 / 录音转写 / Copilot 实时 ASR
+    dashscope_api_key: str = ""   # 语音输入(STT) / 录音转写 / Copilot 实时 ASR / 语音播报(TTS)
     tavily_api_key: str = ""      # Copilot 联网搜索
     oss_access_key_id: str = ""   # 录音复盘长音频上传（阿里云 OSS）
     oss_access_key_secret: str = ""
     oss_bucket: str = ""
     oss_endpoint: str = ""
+    tts_voice: str = ""           # 语音播报音色（DashScope qwen3-tts-flash），空 = 后端默认
 
 
 class SystemSettings(BaseModel):

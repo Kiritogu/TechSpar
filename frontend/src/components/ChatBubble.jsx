@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
+import { Volume2 } from "lucide-react";
 
-export default function ChatBubble({ role, content }) {
+export default function ChatBubble({ role, content, onSpeak }) {
   if (role === "user") {
     return (
       <div className="flex justify-end animate-fade-in">
@@ -18,6 +19,17 @@ export default function ChatBubble({ role, content }) {
         <div className="md-content">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
+        {onSpeak && (
+          <button
+            type="button"
+            onClick={onSpeak}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border/70 px-2.5 py-1.5 text-[12px] text-dim transition-colors hover:text-text hover:border-border cursor-pointer"
+            title="语音播报这条回复"
+          >
+            <Volume2 size={12} />
+            播报
+          </button>
+        )}
       </div>
     </div>
   );

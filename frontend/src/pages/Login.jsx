@@ -99,7 +99,7 @@ export default function Login() {
 
             <div className="relative flex items-center gap-2.5">
               <Logo className="h-9 w-9 rounded-lg drop-shadow-sm" />
-              <span className="text-lg font-display font-bold">TechSpar</span>
+              <span className="text-lg font-display font-bold">OfferSpar</span>
             </div>
 
             <div className="relative flex flex-1 flex-col justify-center gap-6">

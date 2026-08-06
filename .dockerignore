@@ -10,3 +10,6 @@ data/resume
 data/user_profile
 images
 .git
+# Deploy artifacts (server-side certs, not into image build context)
+certs
+certbot-webroot

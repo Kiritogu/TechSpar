@@ -44,8 +44,8 @@ def export_data(
         raise HTTPException(403, "Only administrators can export system data")
 
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-    tmp_dir = Path(tempfile.mkdtemp(prefix="techspar-export-"))
-    archive_path = tmp_dir / f"techspar-backup-{ts}.tar.gz"
+    tmp_dir = Path(tempfile.mkdtemp(prefix="offerspar-export-"))
+    archive_path = tmp_dir / f"offerspar-backup-{ts}.tar.gz"
 
     try:
         export_archive(archive_path)
@@ -81,7 +81,7 @@ async def import_data(
     if not (filename.endswith(".tar.gz") or filename.endswith(".tgz")):
         raise HTTPException(400, "仅支持 .tar.gz / .tgz 归档")
 
-    tmp_dir = Path(tempfile.mkdtemp(prefix="techspar-import-"))
+    tmp_dir = Path(tempfile.mkdtemp(prefix="offerspar-import-"))
     archive_path = tmp_dir / "upload.tar.gz"
 
     total = 0

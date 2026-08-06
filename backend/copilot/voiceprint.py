@@ -140,7 +140,7 @@ class VoiceprintClient:
         """注册候选人声纹。返回腾讯分配的 VoicePrintId；失败返回 None。
 
         Args:
-            speaker_nick: 用户侧命名（TechSpar 里用 techspar_<user_id>）
+            speaker_nick: 用户侧命名（OfferSpar 里用 offerspar_<user_id>）
             pcm_bytes: 16kHz mono 16-bit PCM，建议 ≥6 秒（≤30 秒）
         """
         if not self.is_configured:

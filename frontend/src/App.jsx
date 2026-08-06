@@ -17,7 +17,6 @@ import TopicDetail from "./pages/TopicDetail";
 import Graph from "./pages/Graph";
 import RecordingAnalysis from "./pages/RecordingAnalysis";
 import JobPrep from "./pages/JobPrep";
-import Copilot from "./pages/Copilot";
 import TopicDrill from "./pages/TopicDrill";
 import ResumeInterview from "./pages/ResumeInterview";
 import Settings from "./pages/Settings";
@@ -89,7 +88,6 @@ function AppRoutes() {
                 <Route path="/graph" element={<Graph />} />
                 <Route path="/recording" element={<RecordingAnalysis />} />
                 <Route path="/job-prep" element={<JobPrep />} />
-                <Route path="/copilot" element={<Copilot />} />
                 <Route path="/topic-drill" element={<TopicDrill />} />
                 <Route path="/resume-interview" element={<ResumeInterview />} />
                 <Route

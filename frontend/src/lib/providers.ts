@@ -64,6 +64,30 @@ export const EMBEDDING_PROVIDERS: ProviderOption[] = [
   },
 ];
 
+// DashScope 语音播报音色（qwen3-tts-flash）。与 backend/tts.py 的 VOICE_LABELS 同源。
+export interface TTSVoiceOption {
+  value: string;
+  label: string;
+}
+
+export const TTS_VOICES: TTSVoiceOption[] = [
+  { value: "Cherry", label: "Cherry · 女 · 阳光积极" },
+  { value: "Serena", label: "Serena · 女 · 温柔" },
+  { value: "Ethan", label: "Ethan · 男 · 标准普通话" },
+  { value: "Chelsie", label: "Chelsie · 女 · 二次元" },
+  { value: "Momo", label: "Momo · 女 · 撒娇搞怪" },
+  { value: "Vivian", label: "Vivian · 女 · 活泼可爱" },
+  { value: "Moon", label: "Moon · 男 · 率性帅气" },
+  { value: "Maia", label: "Maia · 女 · 知性温柔" },
+  { value: "Kai", label: "Kai · 男 · 磁性低沉" },
+  { value: "Neil", label: "Neil · 男 · 新闻主播" },
+  { value: "Elias", label: "Elias · 女 · 知识讲解" },
+  { value: "Vincent", label: "Vincent · 男 · 沙哑烟嗓" },
+  { value: "Jennifer", label: "Jennifer · 女 · 美语电影感" },
+  { value: "Nini", label: "Nini · 女 · 软糯甜妹" },
+  { value: "Bella", label: "Bella · 女 · 元气萝莉" },
+];
+
 /** 按存储的 base_url 反查服务商 id；未匹配（自定义 Base URL）返回列表首个。 */
 export function matchProvider(
   baseUrl: string,
