@@ -80,8 +80,8 @@ export const JsonGlassIcon = ({ className, isLoading }: GlassIconProps) => (
         <stop offset="100%" stopColor="#ffffff" stopOpacity="0.1" />
       </linearGradient>
     </defs>
-    <rect x="25" y="20" width="50" height="50" rx="12" fill="#f59e0b" filter="url(#js-glow)" opacity="0.6" />
-    <rect x="30" y="25" width="45" height="45" rx="10" fill="#d97706" />
+    <rect x="25" y="20" width="50" height="50" rx="12" fill="#10b981" filter="url(#js-glow)" opacity="0.6" />
+    <rect x="30" y="25" width="45" height="45" rx="10" fill="#059669" />
     <rect x="15" y="15" width="55" height="55" rx="12" fill="url(#js-glass)" stroke="url(#js-border)" strokeWidth="1.5" />
     <text x="42.5" y="52" fill="#ffffff" fontSize="24" fontWeight="900" fontFamily="monospace" textAnchor="middle">
       {`{`}

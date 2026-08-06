@@ -230,7 +230,7 @@ export function TopicPriorityCard({ item, onSelect, label }) {
     <button
       type="button"
       onClick={() => onSelect(item.topic)}
-      className="group w-full rounded-xl border border-primary/15 bg-[linear-gradient(180deg,rgba(245,158,11,0.04),transparent)] px-3.5 py-3 text-left transition-colors hover:border-primary/35 hover:bg-primary/[0.04] dark:bg-[linear-gradient(180deg,rgba(245,158,11,0.06),transparent)]"
+      className="group w-full rounded-xl border border-primary/15 bg-[linear-gradient(180deg,rgba(5,150,105,0.04),transparent)] px-3.5 py-3 text-left transition-colors hover:border-primary/35 hover:bg-primary/[0.04] dark:bg-[linear-gradient(180deg,rgba(5,150,105,0.06),transparent)]"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">

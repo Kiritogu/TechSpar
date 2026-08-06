@@ -43,7 +43,8 @@ import {
   isKnowledgeAxis,
   sortByDateDesc,
 } from "./profile/derive";
-import { MODE_META, PAGE_CLASS, PERFORMANCE_DIMENSIONS } from "./profile/meta";
+import { MODE_META, PERFORMANCE_DIMENSIONS } from "./profile/meta";
+import { PAGE_CLASS } from "@/lib/layout";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -75,12 +76,12 @@ export default function Profile() {
       <div className={cn(PAGE_CLASS, "space-y-4")}>
         <Skeleton className="h-8 w-32" />
         <Skeleton className="h-5 w-72" />
-        <Skeleton className="h-[220px] w-full rounded-[28px]" />
+        <Skeleton className="h-[220px] w-full rounded-hero" />
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.75fr)]">
-          <Skeleton className="h-[280px] rounded-[24px]" />
-          <Skeleton className="h-[280px] rounded-[24px]" />
+          <Skeleton className="h-[280px] rounded-panel" />
+          <Skeleton className="h-[280px] rounded-panel" />
         </div>
-        <Skeleton className="h-[260px] rounded-[24px]" />
+        <Skeleton className="h-[260px] rounded-panel" />
       </div>
     );
   }
@@ -120,7 +121,7 @@ export default function Profile() {
     return (
       <div className={PAGE_CLASS}>
         <div className="text-3xl font-display font-bold">个人画像</div>
-        <Card className="mt-5 overflow-hidden border-primary/20 bg-[linear-gradient(135deg,rgba(245,158,11,0.12),rgba(20,184,166,0.08))] dark:bg-[linear-gradient(135deg,rgba(245,158,11,0.16),rgba(8,145,178,0.12))]">
+        <Card className="mt-5 overflow-hidden border-primary/20 bg-[linear-gradient(135deg,rgba(5,150,105,0.12),rgba(13,148,136,0.08))] dark:bg-[linear-gradient(135deg,rgba(52,211,153,0.16),rgba(45,212,191,0.12))]">
           <CardContent className="p-8 md:p-10">
             <div className="max-w-2xl">
               <Badge className="mb-4 bg-primary/12 text-primary">还没有训练数据</Badge>
@@ -230,7 +231,7 @@ export default function Profile() {
       </div>
 
       {visitDelta && (
-        <Card className="mt-5 animate-fade-in-up [animation-delay:0.02s] border-primary/25 bg-[linear-gradient(135deg,rgba(245,158,11,0.05),transparent)]">
+        <Card className="mt-5 animate-fade-in-up [animation-delay:0.02s] border-primary/25 bg-[linear-gradient(135deg,rgba(5,150,105,0.05),transparent)]">
           <CardContent className="p-4 md:p-5">
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Sparkles size={16} className="text-primary" />
@@ -285,7 +286,7 @@ export default function Profile() {
       )}
 
       {dueReviews.length > 0 && (
-        <Card className="mt-5 animate-fade-in-up [animation-delay:0.03s] border-primary/25 bg-[linear-gradient(135deg,rgba(245,158,11,0.06),transparent)]">
+        <Card className="mt-5 animate-fade-in-up [animation-delay:0.03s] border-primary/25 bg-[linear-gradient(135deg,rgba(5,150,105,0.06),transparent)]">
           <CardContent className="p-4 md:p-5">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
@@ -419,7 +420,7 @@ export default function Profile() {
                   label="主推荐"
                 />
               ) : (
-                <div className="rounded-[24px] border border-dashed border-border/80 px-5 py-8 text-sm text-dim">
+                <div className="rounded-panel border border-dashed border-border/80 px-5 py-8 text-sm text-dim">
                   目前没有可继续追踪的真实训练领域。
                 </div>
               )}
@@ -517,8 +518,8 @@ export default function Profile() {
           {/* 主推行为模式 + 四 namespace 摘要 */}
           <div className={dimensionAverages ? "" : "mt-6"}>
             {featuredBehavior ? (
-              <div className="rounded-[20px] border border-amber-500/20 bg-[linear-gradient(135deg,rgba(245,158,11,0.06),rgba(251,191,36,0.03))] p-5 md:p-6 dark:bg-[linear-gradient(135deg,rgba(245,158,11,0.10),rgba(251,191,36,0.04))]">
-                <div className="inline-flex rounded-full bg-amber-500/12 px-3 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+              <div className="rounded-item border border-primary/20 bg-[linear-gradient(135deg,rgba(5,150,105,0.06),rgba(13,148,136,0.03))] p-5 md:p-6 dark:bg-[linear-gradient(135deg,rgba(52,211,153,0.10),rgba(45,212,191,0.04))]">
+                <div className="inline-flex rounded-full bg-primary/12 px-3 py-1 text-xs font-medium text-primary">
                   最突出的行为模式
                 </div>
                 <div className="mt-3 text-lg font-semibold leading-relaxed md:text-xl">
@@ -538,7 +539,7 @@ export default function Profile() {
                 )}
               </div>
             ) : (
-              <div className="rounded-[20px] border border-dashed border-border/70 px-5 py-7 text-sm leading-6 text-dim">
+              <div className="rounded-item border border-dashed border-border/70 px-5 py-7 text-sm leading-6 text-dim">
                 还没有累积到稳定的行为模式。完成下一次面试后，系统会按四个维度（推导 / 叙事 / 表达 / 元认知）开始识别你的模式。
               </div>
             )}
@@ -579,7 +580,7 @@ export default function Profile() {
               icon={<TrendingUp size={18} />}
               title="成长趋势"
             />
-            <div className="mt-5 rounded-[24px] border border-border/70 bg-black/[0.02] p-3 dark:bg-white/[0.02] md:p-4">
+            <div className="mt-5 rounded-panel border border-border/70 bg-black/[0.02] p-3 dark:bg-white/[0.02] md:p-4">
               <ScoreChart history={scoreHistory} />
             </div>
           </CardContent>

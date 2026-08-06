@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FileText, ChevronRight, CalendarDays, UploadCloud, CheckCircle2, Clock, Play, Briefcase, Sparkles } from "lucide-react";
 import { getResumeStatus, uploadResume, startInterview, getHistory, getProfile, inferTargetRole } from "../api/interview";
 import { cn } from "@/lib/utils";
+import { getScoreColor } from "@/lib/score";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,11 +26,9 @@ function ScorePill({ score }) {
       </Badge>
     );
   }
-  let bg, color;
-  if (score >= 8) { bg = "rgba(34,197,94,0.12)"; color = "var(--success)"; }
-  else if (score >= 6) { bg = "rgba(245,158,11,0.12)"; color = "var(--ai-glow)"; }
-  else if (score >= 4) { bg = "rgba(253,203,110,0.15)"; color = "#e2b93b"; }
-  else { bg = "rgba(239,68,68,0.12)"; color = "var(--destructive)"; }
+  const sc = getScoreColor(score);
+  const bg = sc?.bg;
+  const color = sc?.color;
   return (
     <Badge
       variant="outline"
@@ -273,7 +272,7 @@ export default function ResumeInterview() {
                   <div className="absolute left-[-11.5px] top-6 bottom-0 w-[2px] bg-border group-hover:bg-primary/40 transition-colors duration-300" />
                 )}
                 {/* 发光圆点 */}
-                <div className="absolute left-[-16.5px] top-1.5 w-[12px] h-[12px] rounded-full border-[2.5px] border-primary bg-background shadow-[0_0_10px_0_rgba(var(--primary-rgb),0.5)] z-10" />
+                <div className="absolute left-[-16.5px] top-1.5 w-[12px] h-[12px] rounded-full border-[2.5px] border-primary bg-background z-10" />
                 
                 <div className="inline-flex items-center text-[14px] font-bold text-text bg-card/60 backdrop-blur-sm px-3.5 py-1.5 rounded-lg border border-border/80 shadow-sm mb-2.5 transition-colors group-hover:border-primary/30 group-hover:bg-primary/5">
                   {step.title}

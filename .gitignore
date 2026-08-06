@@ -48,3 +48,12 @@ design/
 
 # Claude Code local state (worktrees, settings)
 .claude/
+
+# IDE / editor local state
+.idea/
+
+# Runtime logs
+*.log
+
+# Agent scratch
+.agents/

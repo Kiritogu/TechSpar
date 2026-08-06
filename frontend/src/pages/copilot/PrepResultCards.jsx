@@ -79,10 +79,10 @@ export default function PrepResultCards({ status }) {
       </Card>
 
       {(companyReport.interviewer_mindset || companyReport.main_business || companyReport.how_to_reference) && (
-        <Card className="copilot-fade-up copilot-stagger-2 border-blue-500/15 bg-gradient-to-r from-blue-500/3 to-transparent">
+        <Card className="copilot-fade-up copilot-stagger-2 border-teal/15 bg-gradient-to-r from-teal/[0.03] to-transparent">
           <CardContent className="p-5 md:p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/12 text-blue-400">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal/12 text-teal">
                 <Building2 size={16} />
               </div>
               <div className="font-semibold">公司情报</div>
@@ -90,19 +90,19 @@ export default function PrepResultCards({ status }) {
             <div className="grid gap-5 xl:grid-cols-3">
               {companyReport.main_business && (
                 <div className="rounded-xl border border-border/60 bg-card/60 px-4 py-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-400/70 mb-2">主营业务</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal/70 mb-2">主营业务</div>
                   <div className="text-sm leading-7 text-text/90">{companyReport.main_business}</div>
                 </div>
               )}
               {companyReport.interviewer_mindset && (
                 <div className="rounded-xl border border-border/60 bg-card/60 px-4 py-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-400/70 mb-2">面试官关注点</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal/70 mb-2">面试官关注点</div>
                   <div className="text-sm leading-7 text-text/90">{companyReport.interviewer_mindset}</div>
                 </div>
               )}
               {companyReport.how_to_reference && (
                 <div className="rounded-xl border border-border/60 bg-card/60 px-4 py-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-400/70 mb-2">答题时怎么引用</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-teal/70 mb-2">答题时怎么引用</div>
                   <div className="text-sm leading-7 text-text/90">{companyReport.how_to_reference}</div>
                 </div>
               )}
@@ -134,10 +134,10 @@ export default function PrepResultCards({ status }) {
               {gaps.map((item, index) => (
                 <div
                   key={index}
-                  className="copilot-fade-up rounded-2xl border border-amber-500/20 bg-amber-500/8 px-4 py-3 text-sm leading-7"
+                  className="copilot-fade-up rounded-2xl border border-orange/20 bg-orange/8 px-4 py-3 text-sm leading-7"
                   style={{ animationDelay: `${(highlights.length + index) * 0.06}s` }}
                 >
-                  <div><span className="text-amber-500 mr-2">△</span>{typeof item === "string" ? item : item.point}</div>
+                  <div><span className="text-orange mr-2">△</span>{typeof item === "string" ? item : item.point}</div>
                   {item.mitigation && <div className="mt-1 text-[13px] text-dim ml-5">{item.mitigation}</div>}
                 </div>
               ))}
@@ -164,7 +164,7 @@ export default function PrepResultCards({ status }) {
                     "copilot-fade-up rounded-2xl border px-4 py-3",
                     item.risk_level === "danger"
                       ? "border-red/25 bg-red/10 copilot-danger-glow"
-                      : "border-amber-500/20 bg-amber-500/8"
+                      : "border-orange/20 bg-orange/8"
                   )}
                   style={{ animationDelay: `${index * 0.08}s` }}
                 >
@@ -176,7 +176,7 @@ export default function PrepResultCards({ status }) {
                   </div>
                   <div className="text-[13px] leading-6 text-dim">{item.reason}</div>
                   {item.avoidance_strategy && (
-                    <div className="mt-2 text-[13px] leading-6 text-amber-300/80 font-medium">
+                    <div className="mt-2 text-[13px] leading-6 text-orange/80 font-medium">
                       {item.avoidance_strategy}
                     </div>
                   )}

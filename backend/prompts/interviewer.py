@@ -272,6 +272,52 @@ REFERENCE_ANSWER_PROMPT = """你是「{topic_name}」领域的资深技术面试
 """
 
 
+# ── 简历 → 训练领域建议 ──
+
+SUGGEST_TOPICS_PROMPT = """你是一位资深面试规划师。根据候选人的简历,决定专项训练应该覆盖哪些**大类领域**。
+
+## 候选人简历
+{resume_text}
+
+## 目标岗位
+{target_role}
+
+## 现有训练领域清单
+{existing_topics}
+
+## 重要:领域粒度必须是"大类"
+现有领域已经是**大类**(如 Python、Java、React、RAG、微服务、算法)。具体框架、库、工具**属于**某个大类下面的子项,**绝不能**单独成一个新领域。
+
+正确做法举例:
+- 简历用了 FastAPI/Flask/Django → 归入 **Python**,不要新建 "FastAPI"。
+- 简历用了 Spring Boot/MyBatis → 归入 **Java**,不要新建 "Spring Boot"。
+- 简历用了 Next.js/TypeScript → 归入前端大类(React/JavaScript),不要新建 "Next.js"。
+- 简历用了 Redis/Kafka → 归入 **中间件与分布式**,不要新建 "Kafka"。
+
+## 任务
+1. **keep_keys**:从现有领域里,挑出简历相关、值得训练的大类 key。**优先把简历里的技术映射到已有大类,而不是新建。**
+2. **new_topics**:只有当简历里存在一个**独立的、已有领域都没覆盖的大类**时,才建议它。最多 1-3 个,且要和现有领域同级的粒度。
+
+## 返回 JSON(只返回 JSON,不要其他内容)
+```json
+{{
+    "keep_keys": ["现有领域的key"],
+    "new_topics": [
+        {{"name": "新领域大类名", "icon": "图标名", "reason": "为什么建议这个领域(引简历证据)"}}
+    ]
+}}
+```
+
+## 规则
+- keep_keys 只能填「现有领域清单」里真实存在的 key,不能编造。
+- **new_topics 里禁止出现框架、库、工具名**(如 FastAPI、Spring Boot、Redis、Kafka、Next.js)。只能是大类。
+- 能归入已有大类的,一律归入 keep_keys,不要新建。
+- new_topics 的 name 用中文或常用英文名,简洁。
+- icon 只从下面列表里选一个,没有合适的就填 "FileText":
+  FileText, Brain, Bot, Library, Wrench, Plug, Link, Pencil, Database, HardDrive, Settings, Code, Container, Terminal, Globe, Cpu, Network, Shield, Layers, BookOpen, Workflow, Zap, Server, GitBranch, Cloud, Blocks, Hash, Binary, Lock, Rocket, FolderCode, MessageSquare
+"""
+
+
 # ── 画像更新（Mem0 风格）──
 
 PROFILE_UPDATE_PROMPT = """你是用户画像更新引擎。对比已有画像和本次面试新发现，决定如何更新记忆。

@@ -1,5 +1,3 @@
-export const PAGE_CLASS = "flex-1 w-full max-w-[1600px] mx-auto px-4 py-6 md:px-7 md:py-8 xl:px-10 2xl:px-12";
-
 export function formatFileSize(size) {
   if (!size) return null;
   if (size < 1024) return `${size} B`;

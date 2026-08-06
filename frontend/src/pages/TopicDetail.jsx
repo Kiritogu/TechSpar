@@ -18,12 +18,11 @@ import { getTopicIcon } from "../utils/topicIcons";
 import { getProfile, getTopicHistory, getTopicRetrospective, getTopics } from "../api/interview";
 import useTaskStatus from "../hooks/useTaskStatus";
 import { cn } from "@/lib/utils";
+import { PAGE_CLASS } from "@/lib/layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const PAGE_CLASS = "flex-1 w-full max-w-[1600px] mx-auto px-4 py-6 md:px-7 md:py-8 xl:px-10 2xl:px-12";
 
 const MODE_BADGES = {
   resume: { text: "简历面试", variant: "default" },
@@ -79,15 +78,15 @@ export default function TopicDetail() {
         <Skeleton className="h-12 w-72" />
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
           {[...Array(6)].map((_, index) => (
-            <Skeleton key={index} className="h-28 rounded-[24px]" />
+            <Skeleton key={index} className="h-28 rounded-panel" />
           ))}
         </div>
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.24fr)_minmax(340px,0.86fr)]">
-          <Skeleton className="h-[540px] rounded-[28px]" />
+          <Skeleton className="h-[540px] rounded-hero" />
           <div className="space-y-4">
-            <Skeleton className="h-48 rounded-[28px]" />
-            <Skeleton className="h-60 rounded-[28px]" />
-            <Skeleton className="h-52 rounded-[28px]" />
+            <Skeleton className="h-48 rounded-hero" />
+            <Skeleton className="h-60 rounded-hero" />
+            <Skeleton className="h-52 rounded-hero" />
           </div>
         </div>
       </div>
@@ -160,7 +159,7 @@ export default function TopicDetail() {
       <div className="mt-3 flex flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
         <div className="min-w-0">
           <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] border border-border/80 bg-card/85 text-dim">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-item border border-border/80 bg-card/85 text-dim">
               {getTopicIcon(topicInfo?.icon, 30)}
             </div>
 
@@ -213,7 +212,7 @@ export default function TopicDetail() {
           value={masteryScore != null ? `${masteryScore}/100` : "--"}
           hint={mastery.notes || "暂无掌握度说明"}
           accentClassName="text-primary"
-          panelClassName="bg-[linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.03))]"
+          panelClassName="bg-[linear-gradient(135deg,rgba(5,150,105,0.12),rgba(5,150,105,0.03))]"
         />
         <SummaryStat
           icon={<Target size={18} />}
@@ -290,7 +289,7 @@ export default function TopicDetail() {
                 {visibleSections.map((section, index) => (
                   <div
                     key={`${section.title}-${index}`}
-                    className="rounded-[22px] border border-border/80 bg-background/70 p-4"
+                    className="rounded-panel border border-border/80 bg-background/70 p-4"
                   >
                     <div className="text-sm font-semibold text-text">{section.title}</div>
                     <div className="md-content mt-2 text-sm leading-6 text-text">
@@ -377,7 +376,7 @@ export default function TopicDetail() {
 
 function SummaryStat({ icon, label, value, hint, accentClassName, panelClassName }) {
   return (
-    <Card className={cn("rounded-[24px] border-border/80 bg-card/88", panelClassName)}>
+    <Card className={cn("rounded-panel border-border/80 bg-card/88", panelClassName)}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -400,7 +399,7 @@ function SummaryStat({ icon, label, value, hint, accentClassName, panelClassName
 
 function WorkbenchPanel({ icon, title, caption, action, children }) {
   return (
-    <Card className="rounded-[28px] border-border/80 bg-card/88">
+    <Card className="rounded-hero border-border/80 bg-card/88">
       <CardContent className="p-5 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -430,7 +429,7 @@ function SessionTimelineCard({ session, index, onOpen }) {
 
   return (
     <Card
-      className="group cursor-pointer rounded-[24px] border-border/75 bg-card/92 transition-all hover:border-primary/35 hover:shadow-sm"
+      className="group cursor-pointer rounded-panel border-border/75 bg-card/92 transition-all hover:border-primary/35 hover:shadow-sm"
       onClick={onOpen}
     >
       <CardContent className="p-4 md:p-5">
@@ -477,7 +476,7 @@ function InsightBlock({ title, value, body, tone = "default" }) {
     : "border-border/80 bg-background/70";
 
   return (
-    <div className={cn("rounded-[22px] border p-4", toneClass)}>
+    <div className={cn("rounded-panel border p-4", toneClass)}>
       <div className="flex items-start justify-between gap-3">
         <div className="text-sm font-semibold text-text">{title}</div>
         {value && <div className="text-sm font-semibold tabular-nums text-primary">{value}</div>}
@@ -500,7 +499,7 @@ function SignalList({ items, tone, emptyText }) {
   return (
     <div className="space-y-2.5">
       {items.map((item) => (
-        <div key={item.point} className={cn("rounded-[22px] border p-4", cardClass)}>
+        <div key={item.point} className={cn("rounded-panel border p-4", cardClass)}>
           <div className="flex items-start justify-between gap-3">
             <div className="text-sm leading-6 text-text">{item.point}</div>
             <Badge variant={badgeVariant} className="shrink-0">
@@ -533,7 +532,7 @@ function SignalChip({ label, tone = "default" }) {
 function DashboardEmpty({ message, action, compact = false }) {
   return (
     <div className={cn(
-      "rounded-[24px] border border-dashed border-border/80 bg-background/45 text-center text-dim",
+      "rounded-panel border border-dashed border-border/80 bg-background/45 text-center text-dim",
       compact ? "px-4 py-6" : "px-5 py-10"
     )}>
       <div className="text-sm leading-6">{message}</div>
@@ -551,7 +550,7 @@ function FullRetrospectiveModal({ open, retrospective, sectionCount, updatedAt, 
       onClick={onClose}
     >
       <div
-        className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-[28px] border border-border/80 bg-card shadow-xl"
+        className="flex max-h-[88vh] w-full max-w-5xl flex-col overflow-hidden rounded-hero border border-border/80 bg-card shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-border/70 px-5 py-4 md:px-6">
@@ -809,14 +808,14 @@ function toTimestamp(value) {
 
 function getScoreColor(score) {
   if (score >= 8) return "var(--success)";
-  if (score >= 6) return "var(--ai-glow)";
-  if (score >= 4) return "#e2b93b";
+  if (score >= 6) return "var(--teal)";
+  if (score >= 4) return "var(--warning)";
   return "var(--destructive)";
 }
 
 function getScoreBg(score) {
-  if (score >= 8) return "rgba(34,197,94,0.15)";
-  if (score >= 6) return "rgba(245,158,11,0.15)";
-  if (score >= 4) return "rgba(253,203,110,0.2)";
+  if (score >= 8) return "rgba(22,163,74,0.15)";
+  if (score >= 6) return "rgba(13,148,136,0.15)";
+  if (score >= 4) return "rgba(245,158,11,0.15)";
   return "rgba(239,68,68,0.15)";
 }

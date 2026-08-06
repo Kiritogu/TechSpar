@@ -1,6 +1,8 @@
 # LLM Frameworks
 langchain>=0.3.0
 langchain-openai>=0.2.0
+# Claude 走原生 Anthropic API（其余固定服务商均为 OpenAI 兼容端点）
+langchain-anthropic>=0.3.0
 langgraph>=0.2.0
 langgraph-checkpoint-sqlite>=2.0.0
 
@@ -43,7 +45,9 @@ websockets>=12.0
 tencentcloud-sdk-python-common>=3.0.1000
 
 # VAD 切段（C 库，非神经网络）
-webrtcvad>=2.0.10
+# 用 webrtcvad-wheels 替代 webrtcvad：提供 Windows/Linux/macOS 预编译 wheel，避免本地编译 MSVC 报错。
+# 导入名仍是 webrtcvad，与 backend/copilot/vad_segmenter.py 的 `import webrtcvad` 兼容。
+webrtcvad-wheels>=2.0.12
 
 # Utils
 python-dotenv>=1.0.0

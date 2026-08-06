@@ -5,14 +5,16 @@ import { AlertTriangle, CalendarDays, ChevronRight, CircleAlert, CircleCheck, Fi
 import { getHistory, deleteSession, getInterviewTopics, retryReview } from "../api/interview";
 import useTaskStatus from "../hooks/useTaskStatus";
 import { cn } from "@/lib/utils";
+import { getScoreColor } from "@/lib/score";
+import { PAGE_CLASS } from "@/lib/layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorState } from "@/components/ui/error-state";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const PAGE_SIZE = 15;
-const PAGE_CLASS = "flex-1 w-full max-w-[1600px] mx-auto px-4 py-5 md:px-7 md:py-6 xl:px-10 2xl:px-12";
 
 const MODE_BADGES = {
   resume: { text: "简历面试", variant: "default" },
@@ -54,6 +56,7 @@ export default function History() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(null);
   const [modeFilter, setModeFilter] = useState("all");
   const [topicFilter, setTopicFilter] = useState("all");
   const [topics, setTopics] = useState([]);
@@ -85,9 +88,11 @@ export default function History() {
       if (requestId !== requestIdRef.current) return;
       setSessions((prev) => (reset ? data.items : [...prev, ...data.items]));
       setTotal(data.total);
+      setLoadError(null);
     } catch {
       if (requestId !== requestIdRef.current) return;
       if (reset) setSessions([]);
+      setLoadError("历史记录加载失败，请检查网络后重试。");
     } finally {
       if (requestId === requestIdRef.current) {
         if (reset) {
@@ -180,9 +185,9 @@ export default function History() {
       <div className={cn(PAGE_CLASS, "space-y-3")}>
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-5 w-72" />
-        <Skeleton className="h-24 w-full rounded-[24px]" />
+        <Skeleton className="h-24 w-full rounded-panel" />
         {[...Array(5)].map((_, index) => (
-          <Skeleton key={index} className="h-20 w-full rounded-[20px]" />
+          <Skeleton key={index} className="h-20 w-full rounded-item" />
         ))}
       </div>
     );
@@ -218,7 +223,7 @@ export default function History() {
         <Card className="mt-3 border-border/80 bg-card/72">
           <CardContent className="p-3 md:p-4">
             <div className="grid gap-3 xl:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)] xl:items-stretch">
-              <div className="min-w-0 rounded-[20px] border border-border/75 bg-background/55 p-3.5 md:p-4">
+              <div className="min-w-0 rounded-item border border-border/75 bg-background/55 p-3.5 md:p-4">
                 <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-dim/80">
                   <Filter size={13} />
                   模式筛选
@@ -241,7 +246,7 @@ export default function History() {
                 </div>
               </div>
 
-              <div className="rounded-[20px] border border-border/75 bg-background/65 p-3.5 md:p-4">
+              <div className="rounded-item border border-border/75 bg-background/65 p-3.5 md:p-4">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-dim/80">领域筛选</div>
                   <div className="text-[11px] text-dim/70">
@@ -293,6 +298,11 @@ export default function History() {
         </Card>
 
         {sessions.length === 0 ? (
+          loadError ? (
+            <div className="mt-4">
+              <ErrorState message={loadError} onRetry={() => runHistoryQuery({ offset: 0, reset: true })} />
+            </div>
+          ) : (
           <Card className="mt-4 border-border/80">
             <CardContent className="px-6 py-14">
               <div className="mx-auto flex max-w-md flex-col items-center text-center">
@@ -315,6 +325,7 @@ export default function History() {
               </div>
             </CardContent>
           </Card>
+          )
         ) : (
           <>
             <div className="mt-3 flex items-center justify-between gap-3 border-b border-border/70 pb-2">
@@ -417,7 +428,7 @@ function HistoryRow({ session, onOpen, onDelete, onRetry, retrying }) {
     <Card
       role="button"
       tabIndex={0}
-      className="group cursor-pointer rounded-[20px] border-border/75 bg-card/88 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+      className="group cursor-pointer rounded-item border-border/75 bg-card/88 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
       onClick={onOpen}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -543,22 +554,9 @@ function ScorePill({ score }) {
     );
   }
 
-  let bg;
-  let color;
-
-  if (score >= 8) {
-    bg = "rgba(34,197,94,0.15)";
-    color = "var(--success)";
-  } else if (score >= 6) {
-    bg = "rgba(245,158,11,0.15)";
-    color = "var(--ai-glow)";
-  } else if (score >= 4) {
-    bg = "rgba(253,203,110,0.2)";
-    color = "#e2b93b";
-  } else {
-    bg = "rgba(239,68,68,0.15)";
-    color = "var(--destructive)";
-  }
+  const sc = getScoreColor(score);
+  const bg = sc?.bg;
+  const color = sc?.color;
 
   return (
     <Badge
@@ -603,7 +601,7 @@ function DeleteConfirmDialog({ session, open, deleting, onConfirm, onOpenChange 
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-[3px] data-[state=open]:animate-fade-in" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-[460px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] border border-border/80 bg-card text-text shadow-[0_24px_90px_rgba(0,0,0,0.35)] outline-none data-[state=open]:animate-bounce-in">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-[460px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-hero border border-border/80 bg-card text-text shadow-[0_24px_90px_rgba(0,0,0,0.35)] outline-none data-[state=open]:animate-bounce-in">
           <div className="relative p-5 md:p-6">
             <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-br from-red/10 via-orange/10 to-transparent" />
 
@@ -619,7 +617,7 @@ function DeleteConfirmDialog({ session, open, deleting, onConfirm, onOpenChange 
                 删除后，这场复盘会从历史记录中移除，无法恢复。
               </Dialog.Description>
 
-              <div className="mt-5 rounded-[22px] border border-border/80 bg-background/80 p-4">
+              <div className="mt-5 rounded-panel border border-border/80 bg-background/80 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant={badge.variant}>{badge.text}</Badge>
                   {session?.topic && <TopicBadge topic={session.topic} mode={session.mode} />}
@@ -645,7 +643,7 @@ function DeleteConfirmDialog({ session, open, deleting, onConfirm, onOpenChange 
                 )}
               </div>
 
-              <div className="mt-4 rounded-[18px] border border-red/12 bg-red/6 px-3.5 py-3">
+              <div className="mt-4 rounded-item border border-red/12 bg-red/6 px-3.5 py-3">
                 <div className="text-sm font-medium text-text">危险操作</div>
                 <div className="mt-1 text-sm leading-6 text-dim">
                   删除后不会进入回收站，也不会保留这场记录的评分和复盘入口。

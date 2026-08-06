@@ -97,6 +97,22 @@ def _conn_error_message(exc: Exception) -> str:
         return "模型不存在，或 Base URL 路径不正确"
     if isinstance(exc, openai.APIConnectionError):
         return "无法连接到 Base URL，请检查地址与网络"
+    # Claude 走 Anthropic SDK,错误类不同,单独映射。
+    try:
+        import anthropic
+    except ImportError:
+        anthropic = None
+    if anthropic:
+        if isinstance(exc, anthropic.AuthenticationError):
+            return "API Key 无效（认证失败）"
+        if isinstance(exc, anthropic.PermissionDeniedError):
+            return "Key 无该模型权限或被拒绝访问"
+        if isinstance(exc, anthropic.NotFoundError):
+            return "模型不存在，或 Base URL 路径不正确"
+        if isinstance(exc, anthropic.APIConnectionError):
+            return "无法连接到 Base URL，请检查地址与网络"
+        if isinstance(exc, anthropic.RateLimitError):
+            return "请求过于频繁，请稍后再试"
     msg = str(exc).strip().replace("\n", " ")
     return msg[:300] or exc.__class__.__name__
 
@@ -107,7 +123,7 @@ def test_llm_connection(payload: LLMSettings, user_id: str = Depends(get_current
     so the UI can show inline status and the onboarding gate can block on failure.
     Tests the form values, not the saved config — works before first save."""
     try:
-        probe_llm(payload.api_base, payload.api_key, payload.model)
+        probe_llm(payload.provider, payload.api_base, payload.api_key, payload.model)
         return {"ok": True}
     except Exception as exc:  # noqa: BLE001 - any failure means 'not reachable'
         return {"ok": False, "error": _conn_error_message(exc)}

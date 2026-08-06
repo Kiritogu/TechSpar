@@ -5,19 +5,23 @@ import { deleteCopilotPrep, listCopilotPreps } from "../../api/copilot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ErrorState } from "@/components/ui/error-state";
 
-import { PAGE_CLASS, formatTime } from "./shared";
+import { formatTime } from "./shared";
+import { PAGE_CLASS } from "@/lib/layout";
 
 export default function ListView({ onNew, onSelect }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   const load = useCallback(async () => {
     try {
       const data = await listCopilotPreps();
       setItems(data);
+      setLoadError(null);
     } catch {
-      /* ignore */
+      setLoadError("面试准备列表加载失败，请检查网络后重试。");
     } finally {
       setLoading(false);
     }
@@ -68,6 +72,14 @@ export default function ListView({ onNew, onSelect }) {
         <div className="flex items-center justify-center py-20 text-dim">
           <Loader2 size={20} className="animate-spin mr-2" /> 加载中...
         </div>
+      ) : loadError ? (
+        <ErrorState
+          message={loadError}
+          onRetry={() => {
+            setLoading(true);
+            load();
+          }}
+        />
       ) : items.length === 0 ? (
         <Card className="border-dashed border-border/80 bg-card/55">
           <CardContent className="p-8 text-center">
@@ -135,7 +147,7 @@ export default function ListView({ onNew, onSelect }) {
                       </Badge>
                     )}
                     {item.status === "running" && (
-                      <span className="text-xs text-blue-300 flex items-center gap-1">
+                      <span className="text-xs text-teal flex items-center gap-1">
                         <Loader2 size={12} className="animate-spin" /> {item.progress}
                       </span>
                     )}

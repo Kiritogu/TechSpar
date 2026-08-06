@@ -1,14 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
-  Brain,
-  ChevronDown,
-  Mic,
   BarChart3,
-  Repeat,
   BookOpen,
+  Brain,
   BriefcaseBusiness,
+  CheckCircle2,
+  ChevronDown,
+  CircleAlert,
   FileText,
+  Mic,
+  Repeat,
+  ShieldAlert,
+  Sparkles,
+  Target,
+  TrendingUp,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import useScrollReveal from "@/hooks/useScrollReveal";
@@ -16,19 +22,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Logo from "../components/Logo";
-import GitHubStar from "../components/GitHubStar";
-import heroArt from "../assets/hero-art.jpg";
-import heroIntro from "../assets/hero-intro.mp4";
-import storyRemember from "../assets/story-remember.jpg";
-import storyAdapt from "../assets/story-adapt.jpg";
-import storyCompanion from "../assets/story-companion.jpg";
-import momentDrill from "../assets/moment-01-drill.jpg";
-import momentResume from "../assets/moment-02-resume.jpg";
-import momentJd from "../assets/moment-03-jd.jpg";
-import momentCopilot from "../assets/moment-04-copilot.jpg";
-import momentReview from "../assets/moment-05-review.jpg";
-import momentOffer from "../assets/moment-06-offer.jpg";
-import ctaFigure from "../assets/cta-figure.jpg";
 
 const LOOP_MODULES = [
   {
@@ -41,7 +34,7 @@ const LOOP_MODULES = [
     reads: ["主题掌握度", "历史错因", "最近训练"],
     preview: [
       { label: "系统", tone: "text-primary", text: "发现你在 RAG 评估链路上连续失分。" },
-      { label: "下一轮", tone: "text-green", text: "追问 recall、precision 和离线评估设计。" },
+      { label: "下一轮", tone: "text-teal", text: "追问 recall、precision 和离线评估设计。" },
       { label: "结果", tone: "text-orange", text: "把新弱点和掌握度变化写回画像。" },
     ],
     writeback: ["掌握度", "错因", "薄弱点"],
@@ -53,7 +46,7 @@ const LOOP_MODULES = [
     accentText: "text-primary",
     previewClass: "border-primary/15 bg-primary/[0.05]",
     nodeClass: "absolute z-20 left-[3%] top-[14%] w-[164px]",
-    glowColor: "rgba(245,158,11,0.18)",
+    glowColor: "rgba(5,150,105,0.18)",
   },
   {
     key: "resume",
@@ -64,20 +57,20 @@ const LOOP_MODULES = [
     desc: "从自我介绍到项目深挖，系统会记录你的表达短板、技术深度缺口和叙事方式。",
     reads: ["简历内容", "历史表达问题", "项目上下文"],
     preview: [
-      { label: "面试官", tone: "text-green", text: "你在项目里具体负责了哪一段？" },
+      { label: "面试官", tone: "text-teal", text: "你在项目里具体负责了哪一段？" },
       { label: "风险", tone: "text-primary", text: "如果回答失焦，系统会标记项目表达不清。" },
       { label: "写回", tone: "text-orange", text: "沉淀技术深度缺口和沟通观察。" },
     ],
     writeback: ["项目表达", "技术深度", "沟通观察"],
-    chipClass: "bg-green/10 text-green",
-    iconClass: "bg-green/12 text-green",
-    borderClass: "border-green/20",
-    accentBorder: "border-green/20",
-    accentBg: "bg-green/10",
-    accentText: "text-green",
-    previewClass: "border-green/15 bg-green/[0.05]",
+    chipClass: "bg-teal/10 text-teal",
+    iconClass: "bg-teal/12 text-teal",
+    borderClass: "border-teal/20",
+    accentBorder: "border-teal/20",
+    accentBg: "bg-teal/10",
+    accentText: "text-teal",
+    previewClass: "border-teal/15 bg-teal/[0.05]",
     nodeClass: "absolute z-20 left-1/2 top-[2%] w-[164px] -translate-x-1/2",
-    glowColor: "rgba(34,197,94,0.18)",
+    glowColor: "rgba(13,148,136,0.18)",
   },
   {
     key: "job-prep",
@@ -88,20 +81,20 @@ const LOOP_MODULES = [
     desc: "输入 JD 后，系统会重新拆解岗位要求，结合简历与画像生成高概率追问和风险点。",
     reads: ["岗位 JD", "简历经历", "长期画像"],
     preview: [
-      { label: "JD", tone: "text-blue-400", text: "重点在系统设计、性能优化和跨团队协作。" },
+      { label: "JD", tone: "text-orange", text: "重点在系统设计、性能优化和跨团队协作。" },
       { label: "系统", tone: "text-primary", text: "生成 HR 提问策略树和岗位高危路径。" },
-      { label: "写回", tone: "text-orange", text: "记录优先补强项与岗位匹配风险。" },
+      { label: "写回", tone: "text-teal", text: "记录优先补强项与岗位匹配风险。" },
     ],
     writeback: ["岗位风险", "优先补强项", "HR 策略树"],
-    chipClass: "bg-blue-500/10 text-blue-400",
-    iconClass: "bg-blue-500/12 text-blue-400",
-    borderClass: "border-blue-500/20",
-    accentBorder: "border-blue-500/20",
-    accentBg: "bg-blue-500/10",
-    accentText: "text-blue-400",
-    previewClass: "border-blue-500/15 bg-blue-500/[0.05]",
+    chipClass: "bg-orange/10 text-orange",
+    iconClass: "bg-orange/12 text-orange",
+    borderClass: "border-orange/20",
+    accentBorder: "border-orange/20",
+    accentBg: "bg-orange/10",
+    accentText: "text-orange",
+    previewClass: "border-orange/15 bg-orange/[0.05]",
     nodeClass: "absolute z-20 right-[3%] top-[14%] w-[164px]",
-    glowColor: "rgba(59,130,246,0.18)",
+    glowColor: "rgba(251,146,60,0.18)",
   },
   {
     key: "copilot",
@@ -114,7 +107,7 @@ const LOOP_MODULES = [
     preview: [
       { label: "HR", tone: "text-teal", text: "如果线上流量翻倍，你会先动哪一层？" },
       { label: "预测", tone: "text-primary", text: "大概率追问容量、缓存和降级策略。" },
-      { label: "建议", tone: "text-green", text: "先给容量判断，再补监控指标和回滚方案。" },
+      { label: "建议", tone: "text-teal", text: "先给容量判断，再补监控指标和回滚方案。" },
     ],
     writeback: ["追问路径", "风险模式", "回答偏差"],
     chipClass: "bg-teal/10 text-teal",
@@ -139,7 +132,7 @@ const LOOP_MODULES = [
     preview: [
       { label: "录音", tone: "text-orange", text: "自动转写并拆成结构化 Q&A。" },
       { label: "系统", tone: "text-primary", text: "定位表达问题、内容缺口和失误模式。" },
-      { label: "写回", tone: "text-green", text: "把复盘结果反哺到下一轮训练和 Copilot。" },
+      { label: "写回", tone: "text-teal", text: "把复盘结果反哺到下一轮训练和 Copilot。" },
     ],
     writeback: ["失误模式", "表达问题", "改进建议"],
     chipClass: "bg-orange/10 text-orange",
@@ -159,70 +152,82 @@ const STORY_WORDS = [
     key: "remember",
     word: "练完不忘",
     desc: "每一轮的得分、弱点和表达习惯，都会写回同一套长期记忆，不会随会话结束蒸发。",
-    img: storyRemember,
+    gradient: "bg-[radial-gradient(ellipse_at_50%_18%,rgba(5,150,105,0.26),transparent_58%),radial-gradient(ellipse_at_86%_74%,rgba(13,148,136,0.16),transparent_52%)]",
+    memory: {
+      title: "写回长期记忆",
+      rows: ["错因 3 条已归档", "主题掌握度 72 → 78", "表达短板 +1"],
+    },
   },
   {
     key: "adapt",
     word: "越练越懂",
     desc: "下一轮开始前，系统先读画像再决定问什么、提醒什么——是延续训练，不是重新开始。",
-    img: storyAdapt,
+    gradient: "bg-[radial-gradient(ellipse_at_50%_18%,rgba(13,148,136,0.24),transparent_58%),radial-gradient(ellipse_at_14%_80%,rgba(5,150,105,0.16),transparent_52%)]",
+    memory: {
+      title: "下一轮输入",
+      rows: ["从画像决定问什么", "优先补薄弱点", "沿用历史错因"],
+    },
   },
   {
     key: "companion",
     word: "实战陪跑",
     desc: "真实面试里，Copilot 沿着你的高危路径预测下一步追问，把准备一路带进实战。",
-    img: storyCompanion,
+    gradient: "bg-[radial-gradient(ellipse_at_50%_18%,rgba(52,211,153,0.22),transparent_58%),radial-gradient(ellipse_at_82%_30%,rgba(20,184,166,0.18),transparent_52%)]",
+    memory: {
+      title: "实战中预测",
+      rows: ["高危路径已载入", "下一问: 缓存与降级", "建议: 先给容量判断"],
+    },
   },
 ];
 
 const MOMENTS = [
   {
     num: "01",
-    img: momentDrill,
+    ui: "weakness",
     title: "弱点不再漏网",
     desc: "每一轮都从历史错因出发，追着薄弱点出题，而不是重新随机刷一遍。",
     tilt: "-rotate-2",
-    chip: "bg-amber-600 text-white",
+    chip: "bg-primary text-primary-foreground",
   },
   {
     num: "02",
-    img: momentResume,
+    ui: "resume",
     title: "项目终于讲清了",
     desc: "围绕真实经历深挖，表达短板和技术深度缺口一个个暴露、一个个补掉。",
     tilt: "rotate-1",
-    chip: "bg-emerald-700 text-white",
+    chip: "bg-primary text-primary-foreground",
   },
   {
     num: "03",
-    img: momentJd,
+    ui: "jd",
     title: "备面像做作战地图",
     desc: "输入 JD，系统拆出岗位要求、高概率追问和风险点，不再凭感觉准备。",
     tilt: "rotate-2",
-    chip: "bg-blue-700 text-white",
+    chip: "bg-primary text-primary-foreground",
   },
   {
     num: "04",
-    img: momentCopilot,
+    ui: "copilot",
     title: "追问被预判了",
     desc: "真实面试里持续转写 HR 发言，预测下一步追问，提前半步给你建议。",
     tilt: "-rotate-1",
-    chip: "bg-teal-700 text-white",
+    chip: "bg-primary text-primary-foreground",
   },
   {
     num: "05",
-    img: momentReview,
+    ui: "review",
     title: "失误写回系统",
     desc: "录音自动转写、逐题复盘，失分点回流画像，下一轮训练更贴近真实。",
     tilt: "rotate-1",
-    chip: "bg-orange-700 text-white",
+    chip: "bg-primary text-primary-foreground",
   },
   {
     num: "06",
-    img: momentOffer,
+    ui: "offer",
     title: "一切都值得",
     desc: "从第一轮刷题到真实 Offer，系统记得你走过的每一步。",
     tilt: "-rotate-2",
-    chip: "bg-amber-600 text-white",
+    chip: "bg-primary text-primary-foreground",
   },
 ];
 
@@ -282,15 +287,7 @@ function TypedLine({ text, delay = 0 }) {
 
 export default function Landing() {
   const navigate = useNavigate();
-  // 开场视频只播一遍:先留在深色底上,首帧解码后淡入,避免播放前先闪一下静帧;
-  // 播完淡出定格到静帧,视频出错时也回落到静帧;reduced-motion 直接出静帧
-  const [heroVideoDone, setHeroVideoDone] = useState(false);
-  const [heroVideoReady, setHeroVideoReady] = useState(false);
-  const [showHeroVideo] = useState(
-    () => !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-
-  // 落地页锁深色(视觉世界观基于暗琥珀);离开时恢复用户在应用内的主题偏好
+  // 落地页锁深色(视觉世界观基于翠玉绿深松针底);离开时恢复用户在应用内的主题偏好
   useEffect(() => {
     document.documentElement.classList.add("dark");
     return () => {
@@ -311,7 +308,7 @@ export default function Landing() {
 
   return (
     <div className="landing-motion min-h-screen bg-bg text-text">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(245,158,11,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(245,158,11,0.035)_1px,transparent_1px)] bg-[size:72px_72px] opacity-60 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(5,150,105,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,150,105,0.035)_1px,transparent_1px)] bg-[size:72px_72px] opacity-60 pointer-events-none" />
       <div className="grain-overlay" aria-hidden="true" />
 
       <header className="sticky top-0 z-40">
@@ -325,7 +322,6 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-3">
-            <GitHubStar />
             <Button variant="outline" onClick={() => navigate("/login")}>
               登录
             </Button>
@@ -336,40 +332,64 @@ export default function Landing() {
       <main className="relative z-10">
         <section className="relative -mt-[72px] flex min-h-screen flex-col overflow-hidden border-b border-border/60">
           <div className="absolute inset-0 bg-bg">
-            {/* 静帧仅作视频定格与兜底:开场用视频时先隐藏,避免播放前先闪一下静图 */}
-            <img
-              src={heroArt}
-              alt=""
-              className={cn(
-                "h-full w-full object-cover object-center transition-opacity duration-700",
-                showHeroVideo && !heroVideoDone ? "opacity-0" : "opacity-100"
-              )}
-            />
-            {showHeroVideo && (
-              <video
-                className={cn(
-                  "absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700",
-                  heroVideoReady && !heroVideoDone ? "opacity-100" : "opacity-0"
-                )}
-                autoPlay
-                muted
-                playsInline
-                preload="auto"
-                onLoadedData={() => setHeroVideoReady(true)}
-                onEnded={() => setHeroVideoDone(true)}
-                onError={() => setHeroVideoDone(true)}
-              >
-                <source src={heroIntro} type="video/mp4" />
-              </video>
-            )}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(9,9,11,0.2)_0%,rgba(9,9,11,0.08)_45%,rgba(9,9,11,0.5)_100%)]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-bg/20" />
+            {/* 纯代码视觉:翠玉光晕 + 成长弧线品牌 SVG + 漂浮产品 mini 卡,零照片零视频 */}
+            <div className="absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(52,211,153,0.14),transparent_60%)] blur-3xl" />
+            <div className="absolute -right-24 top-1/3 h-[420px] w-[560px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(13,148,136,0.12),transparent_60%)] blur-3xl" />
+
+            <svg
+              viewBox="0 0 1200 760"
+              className="absolute inset-0 h-full w-full"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="hero-arc" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0%" stopColor="rgba(5,150,105,0.5)" />
+                  <stop offset="100%" stopColor="rgba(52,211,153,0.9)" />
+                </linearGradient>
+              </defs>
+              <path d="M 40 660 C 240 660 460 480 700 330" stroke="url(#hero-arc)" strokeWidth="2.5" strokeLinecap="round" opacity="0.45" />
+              <path d="M 700 330 C 790 330 880 230 940 140 C 860 250 770 330 700 330 Z" fill="rgba(52,211,153,0.4)" />
+              <circle cx="180" cy="645" r="5" fill="rgba(5,150,105,0.5)" />
+              <circle cx="360" cy="565" r="7" fill="rgba(13,148,136,0.5)" />
+              <circle cx="560" cy="425" r="5" fill="rgba(52,211,153,0.5)" />
+              <circle cx="820" cy="250" r="130" stroke="rgba(52,211,153,0.14)" strokeWidth="1.5" strokeDasharray="6 12" />
+              <circle cx="820" cy="250" r="200" stroke="rgba(52,211,153,0.09)" strokeWidth="1.5" strokeDasharray="6 12" />
+            </svg>
+
+            {/* 漂浮的产品 mini 卡,与下方文案呼应 */}
+            <div className="absolute right-[12%] top-[24%] z-10 hidden animate-float-soft md:block" style={{ animationDelay: "0.6s" }}>
+              <div className="rounded-item border border-primary/20 bg-card/90 px-4 py-2.5 shadow-[0_18px_40px_-18px_rgba(5,150,105,0.4)] backdrop-blur-sm">
+                <div className="text-[10px] uppercase tracking-[0.2em] text-dim">主题掌握度</div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="text-lg font-bold tabular-nums text-primary">82</span>
+                  <span className="text-xs text-dim">/100</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute left-[9%] top-[42%] z-10 hidden w-[210px] animate-float md:block" style={{ animationDelay: "1.4s" }}>
+              <div className="rounded-panel border border-teal/25 bg-card/90 p-3.5 shadow-[0_18px_40px_-18px_rgba(13,148,136,0.4)] backdrop-blur-sm">
+                <div className="text-[10px] uppercase tracking-[0.2em] text-teal">下一轮追问</div>
+                <div className="mt-1 text-xs leading-5 text-dim">先给容量判断，再补监控指标和回滚方案。</div>
+              </div>
+            </div>
+
+            <div className="absolute bottom-[34%] right-[24%] z-10 hidden animate-float-soft lg:flex" style={{ animationDelay: "1s" }}>
+              <div className="flex items-center gap-2 rounded-full border border-primary/20 bg-card/90 px-3 py-1.5 text-xs text-primary shadow-sm backdrop-blur-sm">
+                <Repeat size={12} /> 弱点已写回长期记忆
+              </div>
+            </div>
+
+            {/* 底部渐入保证文案可读 */}
+            <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-bg/30" />
           </div>
 
           <div className="relative z-10 mx-auto flex max-w-4xl flex-1 flex-col items-center justify-end px-6 pt-[72px] pb-12 text-center">
-            <h1 className="text-4xl font-serif font-bold leading-tight tracking-normal md:text-5xl lg:text-6xl md:leading-[1.15] animate-fade-in-up">
+            <h1 className="text-4xl font-display font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl md:leading-[1.15] animate-fade-in-up">
               把技术面试做成
-              <span className="hero-gradient-text mt-3 block bg-gradient-to-r from-accent-light via-accent to-orange bg-clip-text text-transparent">
+              <span className="hero-gradient-text mt-3 block bg-gradient-to-r from-accent-light via-primary to-teal bg-clip-text text-transparent">
                 一条持续进化的闭环
               </span>
             </h1>
@@ -458,13 +478,15 @@ export default function Landing() {
                 <div
                   key={item.num}
                   className={cn(
-                    "reveal-item rounded-[6px] bg-[#f3ecdd] p-3 pb-5 shadow-[0_24px_60px_rgba(0,0,0,0.45)] transition-transform duration-300 hover:rotate-0 hover:-translate-y-1",
+                    "reveal-item rounded-item border border-border/70 bg-card p-3 pb-5 shadow-[0_24px_60px_rgba(0,0,0,0.28)] transition-transform duration-300 hover:rotate-0 hover:-translate-y-1",
                     item.tilt
                   )}
                   style={revealStyle(0.06 + index * 0.06)}
                 >
-                  <div className="overflow-hidden rounded-[3px]">
-                    <img src={item.img} alt={item.title} loading="lazy" className="aspect-square w-full object-cover" />
+                  <div className="overflow-hidden rounded-item border border-border/60 bg-background/60">
+                    <div className="aspect-[4/3]">
+                      <MomentUI variant={item.ui} />
+                    </div>
                   </div>
                   <div className="mt-4 flex items-center gap-3 px-1">
                     <span
@@ -475,9 +497,9 @@ export default function Landing() {
                     >
                       {item.num}
                     </span>
-                    <span className="text-lg font-display font-bold text-zinc-800">{item.title}</span>
+                    <span className="text-lg font-display font-bold text-text">{item.title}</span>
                   </div>
-                  <p className="mt-2 px-1 text-sm leading-6 text-zinc-600">{item.desc}</p>
+                  <p className="mt-2 px-1 text-sm leading-6 text-dim">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -490,12 +512,26 @@ export default function Landing() {
         >
           <div className="pointer-events-none absolute inset-0">
             <div className="story-glow absolute left-1/2 top-1/2 h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[130px]" />
-            <img
-              src={ctaFigure}
-              alt=""
-              loading="lazy"
+            <svg
               className="absolute bottom-0 right-0 hidden h-[82%] w-auto opacity-90 lg:block [mask-image:radial-gradient(ellipse_62%_78%_at_55%_48%,black_52%,transparent_98%)]"
-            />
+              viewBox="0 0 760 640"
+              fill="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="cta-arc" x1="0" y1="620" x2="620" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="var(--primary)" stopOpacity="0.75" />
+                  <stop offset="1" stopColor="var(--teal)" stopOpacity="0.9" />
+                </linearGradient>
+              </defs>
+              <circle cx="520" cy="260" r="120" stroke="var(--primary)" strokeOpacity="0.16" strokeWidth="1.5" strokeDasharray="4 8" />
+              <circle cx="520" cy="260" r="220" stroke="var(--primary)" strokeOpacity="0.1" strokeWidth="1.5" strokeDasharray="4 8" />
+              <path d="M 40 560 C 220 560 360 420 520 260" stroke="url(#cta-arc)" strokeWidth="3" strokeLinecap="round" />
+              <path d="M 520 260 C 566 260 618 200 648 120 C 616 206 566 260 520 260 Z" fill="url(#cta-arc)" />
+              <circle cx="168" cy="536" r="9" fill="var(--primary)" />
+              <circle cx="288" cy="470" r="7" fill="var(--teal)" />
+              <circle cx="453" cy="433" r="6" fill="var(--primary)" opacity="0.85" />
+            </svg>
           </div>
 
           <div className="relative mx-auto max-w-4xl text-center">
@@ -503,7 +539,7 @@ export default function Landing() {
               准备、模拟、实战、复盘，全部接进同一条闭环
             </div>
             <h2
-              className="reveal-item mt-5 text-4xl font-serif font-bold tracking-normal md:text-6xl md:leading-[1.15]"
+              className="reveal-item mt-5 text-4xl font-display font-bold tracking-tight md:text-6xl md:leading-[1.15]"
               style={revealStyle(0.1)}
             >
               从第一轮刷题开始，到真实面试结束后复盘，系统都不会忘记你
@@ -518,7 +554,7 @@ export default function Landing() {
               <Button
                 variant="gradient"
                 size="lg"
-                className="shadow-[0_0_40px_rgba(245,158,11,0.25)] transition-shadow hover:shadow-[0_0_72px_rgba(245,158,11,0.45)]"
+                className="shadow-[0_16px_40px_-18px_rgba(5,150,105,0.5)] transition-shadow hover:shadow-[0_20px_48px_-16px_rgba(5,150,105,0.55)]"
                 onClick={() => navigate("/login")}
               >
                 进入 Demo
@@ -538,14 +574,6 @@ export default function Landing() {
           <p className="text-xs text-dim">从刷题到实战的 AI 技术面试陪练系统</p>
           <div className="flex gap-6 text-xs">
             <a
-              href="https://github.com/AnnaSuSu/TechSpar"
-              target="_blank"
-              rel="noreferrer"
-              className="text-dim transition-colors hover:text-text"
-            >
-              GitHub
-            </a>
-            <a
               href="https://techspar.top/"
               target="_blank"
               rel="noreferrer"
@@ -558,6 +586,141 @@ export default function Landing() {
       </footer>
     </div>
   );
+}
+
+/* ── 叙事屏抽象几何背景:随屏切换的同心环 + 上升弧线 ── */
+function GrowthShape({ variant }) {
+  const variants = [
+    { dx: -40, dy: -60, a: "rgba(52,211,153,0.12)", b: "rgba(13,148,136,0.10)" },
+    { dx: 50, dy: -30, a: "rgba(13,148,136,0.14)", b: "rgba(52,211,153,0.10)" },
+    { dx: -20, dy: 40, a: "rgba(52,211,153,0.12)", b: "rgba(20,184,166,0.10)" },
+  ];
+  const p = variants[variant % variants.length];
+  return (
+    <svg viewBox="0 0 900 900" className="absolute inset-0 h-full w-full" fill="none" aria-hidden="true">
+      <circle cx={450 + p.dx} cy={450 + p.dy} r="340" stroke={p.a} strokeWidth="1.5" strokeDasharray="8 14" />
+      <circle cx={450 + p.dx * 1.6} cy={450 + p.dy * 1.6} r="260" stroke={p.b} strokeWidth="1.5" strokeDasharray="6 12" />
+      <circle cx={450 + p.dx * 0.5} cy={450 + p.dy * 0.5} r="430" stroke={p.a} strokeWidth="1" opacity="0.6" />
+      <path d="M 120 720 C 320 720 480 540 680 380" stroke="rgba(52,211,153,0.22)" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="680" cy="380" r="8" fill="rgba(52,211,153,0.28)" />
+    </svg>
+  );
+}
+
+/* ── 叙事屏「记忆写回」迷你面板:代码绘,替代原照片副卡 ── */
+function MemoryWritebackCard({ item }) {
+  return (
+    <div className="rounded-panel border border-primary/15 bg-card/80 px-5 py-4 text-left shadow-[0_20px_50px_-20px_rgba(5,150,105,0.35)] backdrop-blur-sm">
+      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+        <Repeat size={12} /> {item.memory.title}
+      </div>
+      <div className="mt-3 space-y-2">
+        {item.memory.rows.map((row) => (
+          <div key={row} className="flex items-center gap-2 text-[13px] leading-5 text-text/85">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
+            {row}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── 真实时刻卡内的代码绘产品 mini UI,替代原照片 ── */
+function MomentUI({ variant }) {
+  const row = (label, pct, tone) => (
+    <div className="flex items-center gap-2 text-[11px] leading-5">
+      <span className="w-24 shrink-0 truncate text-dim">{label}</span>
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-border/60">
+        <div className={cn("h-full rounded-full", tone)} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="w-7 shrink-0 text-right tabular-nums text-text/70">{pct}</span>
+    </div>
+  );
+
+  switch (variant) {
+    case "weakness":
+      return (
+        <div className="flex h-full flex-col justify-center gap-2.5 px-5 py-4">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/70">弱点扫描</div>
+          {row("RAG 评估链路", 78, "bg-primary")}
+          {row("SQL 优化", 62, "bg-teal")}
+          {row("Redis 降级", 41, "bg-orange")}
+        </div>
+      );
+    case "resume":
+      return (
+        <div className="flex h-full flex-col justify-center gap-2 px-5 py-4">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/70">项目深挖</div>
+          <div className="rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-[11px] leading-5">
+            <span className="font-semibold text-teal">面试官:</span> 你在项目里具体负责了哪一段？
+          </div>
+          <div className="rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-[11px] leading-5">
+            <span className="font-semibold text-text/85">你:</span> 我主要负责 RAG 链路的评估部分…
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] text-orange">
+            <CircleAlert size={12} /> 表达失焦，系统建议聚焦「项目深挖」
+          </div>
+        </div>
+      );
+    case "jd":
+      return (
+        <div className="flex h-full flex-col justify-center gap-2.5 px-5 py-4">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/70">JD 拆解</div>
+          <div className="flex flex-wrap gap-1.5">
+            {["系统设计", "性能优化", "跨团队"].map((t) => (
+              <span key={t} className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                {t}
+              </span>
+            ))}
+          </div>
+          <div className="space-y-1.5 text-[11px] leading-5 text-dim">
+            <div className="flex items-center gap-1.5"><Target size={12} className="text-teal" /> 高概率追问已生成 3 条</div>
+            <div className="flex items-center gap-1.5"><ShieldAlert size={12} className="text-orange" /> 2 个高危风险区域</div>
+          </div>
+        </div>
+      );
+    case "copilot":
+      return (
+        <div className="flex h-full flex-col justify-center gap-2 px-5 py-4">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/70">实时预测</div>
+          <div className="rounded-xl border border-teal/25 bg-teal/[0.06] px-3 py-2 text-[11px] leading-5">
+            <span className="font-semibold text-teal">HR:</span> 线上流量翻倍，你会先动哪一层？
+          </div>
+          <div className="rounded-xl border border-border/70 bg-background/80 px-3 py-2 text-[11px] leading-5">
+            <span className="font-semibold text-primary">预测:</span> 大概率追问容量、缓存、降级策略
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] text-teal"><Sparkles size={12} /> 建议先给容量判断，再补监控指标</div>
+        </div>
+      );
+    case "review":
+      return (
+        <div className="flex h-full flex-col justify-center gap-2.5 px-5 py-4">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/70">复盘四维</div>
+          {row("表达沟通", 82, "bg-primary")}
+          {row("技术深度", 64, "bg-teal")}
+          {row("问题解决", 70, "bg-teal")}
+          <div className="flex items-center gap-1.5 text-[10px] text-dim"><TrendingUp size={12} className="text-green" /> 3 条失误已写回画像</div>
+        </div>
+      );
+    case "offer":
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-2 px-5 py-4 text-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green/15 text-green">
+            <CheckCircle2 size={20} />
+          </div>
+          <div className="text-[11px] font-semibold text-text/85">从第一轮刷题到真实 Offer</div>
+          <div className="flex items-center gap-3 text-[11px] text-dim">
+            <span>训练 <span className="font-bold tabular-nums text-text/80">42</span> 次</span>
+            <span>·</span>
+            <span>平均 <span className="font-bold tabular-nums text-text/80">86</span> 分</span>
+          </div>
+          <div className="rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-primary">Offer 达成 ✓</div>
+        </div>
+      );
+    default:
+      return null;
+  }
 }
 
 /* ── 叙事大字屏:sticky 三屏,滚动驱动词组逐字浮现 ── */
@@ -594,31 +757,30 @@ function StoryScreens() {
     >
       <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
         {STORY_WORDS.map((item, index) => (
-          <img
+          <div
             key={item.key}
-            src={item.img}
-            alt=""
-            loading="lazy"
             className={cn(
-              "absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700",
+              "absolute inset-0 transition-opacity duration-700",
+              item.gradient,
               index === active ? "opacity-100" : "opacity-0"
             )}
-          />
+          >
+            <GrowthShape variant={index} />
+          </div>
         ))}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(9,9,11,0.5)_0%,rgba(9,9,11,0.35)_50%,rgba(9,9,11,0.8)_100%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-bg/70 via-transparent to-bg/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-bg/60 via-transparent to-bg/80" />
 
         <div className="relative w-full px-6 text-center">
           <div className="text-sm font-medium text-primary">为什么 TechSpar 不只是一个题库？</div>
 
-          <div className="relative mx-auto mt-6 h-64 w-full max-w-3xl md:h-72">
+          <div className="relative mx-auto mt-6 h-56 w-full max-w-3xl md:h-64">
             {STORY_WORDS.map((item, index) => (
               <div
                 key={item.key}
                 className={cn("story-word absolute inset-x-0 top-6", index === active && "active")}
                 aria-hidden={index !== active}
               >
-                <div className="font-serif text-6xl font-bold tracking-normal text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.7)] md:text-8xl">
+                <div className="font-display text-6xl font-bold tracking-tight text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.7)] md:text-8xl">
                   {item.word.split("").map((char, charIndex) => (
                     <span
                       key={charIndex}
@@ -646,6 +808,10 @@ function StoryScreens() {
                 )}
               />
             ))}
+          </div>
+
+          <div className="mx-auto mt-8 w-full max-w-sm">
+            <MemoryWritebackCard item={STORY_WORDS[active]} />
           </div>
         </div>
       </div>
@@ -703,14 +869,14 @@ function LoopVisual() {
                 markerHeight="8"
                 orient="auto-start-reverse"
               >
-                <path d="M0 0 L8 4 L0 8 Z" fill="rgba(245,158,11,0.42)" />
+                <path d="M0 0 L8 4 L0 8 Z" fill="rgba(5,150,105,0.42)" />
               </marker>
             </defs>
-            <circle cx="220" cy="310" r="176" stroke="rgba(245,158,11,0.14)" strokeWidth="1.5" strokeDasharray="10 16" />
+            <circle cx="220" cy="310" r="176" stroke="rgba(5,150,105,0.14)" strokeWidth="1.5" strokeDasharray="10 16" />
             <circle cx="220" cy="310" r="138" stroke="rgba(20,184,166,0.08)" strokeWidth="1.2" />
             <path
               d="M78 168 A176 176 0 0 1 220 134"
-              stroke="rgba(245,158,11,0.32)"
+              stroke="rgba(5,150,105,0.32)"
               strokeWidth="2"
               strokeLinecap="round"
               markerEnd="url(#loop-arrow)"
@@ -719,7 +885,7 @@ function LoopVisual() {
             />
             <path
               d="M224 134 A176 176 0 0 1 362 172"
-              stroke="rgba(34,197,94,0.28)"
+              stroke="rgba(13,148,136,0.3)"
               strokeWidth="2"
               strokeLinecap="round"
               markerEnd="url(#loop-arrow)"
@@ -728,7 +894,7 @@ function LoopVisual() {
             />
             <path
               d="M362 176 A176 176 0 0 1 340 432"
-              stroke="rgba(59,130,246,0.28)"
+              stroke="rgba(5,150,105,0.3)"
               strokeWidth="2"
               strokeLinecap="round"
               markerEnd="url(#loop-arrow)"
@@ -753,9 +919,9 @@ function LoopVisual() {
               className="loop-beam"
               style={{ "--beam-delay": "1.6s" }}
             />
-            <path d="M220 310 L78 168" stroke="rgba(245,158,11,0.08)" strokeWidth="1.5" />
-            <path d="M220 310 L220 134" stroke="rgba(34,197,94,0.08)" strokeWidth="1.5" />
-            <path d="M220 310 L362 172" stroke="rgba(59,130,246,0.08)" strokeWidth="1.5" />
+            <path d="M220 310 L78 168" stroke="rgba(5,150,105,0.08)" strokeWidth="1.5" />
+            <path d="M220 310 L220 134" stroke="rgba(13,148,136,0.08)" strokeWidth="1.5" />
+            <path d="M220 310 L362 172" stroke="rgba(5,150,105,0.08)" strokeWidth="1.5" />
             <path d="M220 310 L340 432" stroke="rgba(20,184,166,0.08)" strokeWidth="1.5" />
             <path d="M220 310 L116 500" stroke="rgba(251,146,60,0.08)" strokeWidth="1.5" />
           </svg>
@@ -921,7 +1087,7 @@ function CenterMemoryCard({ activeModule, mobile = false }) {
   return (
     <Card
       className={cn(
-        "rounded-[28px] border-primary/18 bg-card/96 shadow-[0_26px_90px_rgba(245,158,11,0.14)] backdrop-blur-sm",
+        "rounded-[28px] border-primary/18 bg-card/96 shadow-[0_26px_60px_-24px_rgba(5,150,105,0.4)] backdrop-blur-sm",
         !mobile && "animate-glow-pulse"
       )}
     >
@@ -967,7 +1133,7 @@ function SectionHeading({ label, title, desc }) {
   return (
     <div className="max-w-4xl">
       <div className="text-sm font-medium text-primary">{label}</div>
-      <h2 className="mt-3 text-2xl font-serif font-bold tracking-normal md:text-4xl">{title}</h2>
+      <h2 className="mt-3 text-2xl font-display font-bold tracking-tight md:text-4xl">{title}</h2>
       <p className="mt-4 text-sm leading-7 text-dim md:text-base">{desc}</p>
     </div>
   );

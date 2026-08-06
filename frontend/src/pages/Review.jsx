@@ -6,13 +6,7 @@ import { getReview, getReferenceAnswer, startInterview, startJobPrep } from "../
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-
-function getScoreColor(score) {
-  if (score >= 8) return { bg: "rgba(34,197,94,0.15)", color: "var(--success)" };
-  if (score >= 6) return { bg: "rgba(245,158,11,0.15)", color: "var(--ai-glow)" };
-  if (score >= 4) return { bg: "rgba(253,203,110,0.2)", color: "#e2b93b" };
-  return { bg: "rgba(239,68,68,0.15)", color: "var(--destructive)" };
-}
+import { getScoreColor } from "@/lib/score";
 
 const RESUME_DIMENSION_LABELS = {
   technical_depth: "技术深度",
@@ -76,7 +70,7 @@ function PointList({ title, items, tone = "red" }) {
   const boxClass = tone === "green"
     ? "bg-green/8 border-green/20"
     : tone === "blue"
-      ? "bg-blue-500/8 border-blue-500/20"
+      ? "bg-teal/8 border-teal/20"
       : "bg-red/8 border-red/20";
 
   return (
@@ -152,7 +146,7 @@ function SoloRecordingReview({ topicsCovered, overall }) {
                 {overall.communication_observations.new_suggestions?.length > 0 && (
                   <div className="mt-2">
                     {overall.communication_observations.new_suggestions.map((s, i) => (
-                      <div key={i} className="px-3 py-2 rounded-lg text-[13px] text-text border bg-blue-500/8 border-blue-500/20 mb-1.5">{s}</div>
+                      <div key={i} className="px-3 py-2 rounded-lg text-[13px] text-text border bg-teal/8 border-teal/20 mb-1.5">{s}</div>
                     ))}
                   </div>
                 )}
@@ -331,7 +325,7 @@ function DrillReview({ scores, overall, questions, answers, topic, sessionId, in
                 {overall.communication_observations.new_suggestions?.length > 0 && (
                   <div className="mt-2">
                     {overall.communication_observations.new_suggestions.map((s, i) => (
-                      <div key={i} className="px-3 py-2 rounded-lg text-[13px] text-text border bg-blue-500/8 border-blue-500/20 mb-1.5">{s}</div>
+                      <div key={i} className="px-3 py-2 rounded-lg text-[13px] text-text border bg-teal/8 border-teal/20 mb-1.5">{s}</div>
                     ))}
                   </div>
                 )}
@@ -373,7 +367,7 @@ function JobPrepReview({ scores, overall, questions, answers, meta }) {
           <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <BriefcaseBusiness size={18} className="text-blue-400" />
+                <BriefcaseBusiness size={18} className="text-teal" />
                 <span className="text-lg font-semibold">
                   {meta?.company ? `${meta.company} · ` : ""}{meta?.position || "目标岗位"}
                 </span>
@@ -394,8 +388,8 @@ function JobPrepReview({ scores, overall, questions, answers, meta }) {
             <div className="text-[15px] leading-[1.8] text-text mb-4">{overall.summary}</div>
           )}
           {overall?.role_fit_summary && (
-            <div className="rounded-xl bg-blue-500/8 border border-blue-500/15 px-4 py-3 text-sm leading-relaxed">
-              <div className="text-[13px] font-semibold text-blue-300 mb-1.5">岗位匹配判断</div>
+            <div className="rounded-xl bg-teal/8 border border-teal/15 px-4 py-3 text-sm leading-relaxed">
+              <div className="text-[13px] font-semibold text-teal mb-1.5">岗位匹配判断</div>
               {overall.role_fit_summary}
             </div>
           )}
@@ -606,7 +600,7 @@ export default function Review() {
     <div className="flex-1 px-4 py-8 md:px-6 md:py-10 max-w-3xl mx-auto w-full">
       <div className="mb-8 animate-fade-in">
         <div className="flex items-center gap-2 mb-2">
-          {isJobPrep && <BriefcaseBusiness size={18} className="text-blue-400" />}
+          {isJobPrep && <BriefcaseBusiness size={18} className="text-teal" />}
           {showDrill && !isJobPrep && !isRecording && <Sparkles size={18} className="text-primary" />}
           {isRecording && <BookOpen size={18} className="text-primary" />}
           <div className="text-2xl md:text-[28px] font-display font-bold">{title}</div>

@@ -35,6 +35,8 @@ import {
 } from "../api/voiceprint";
 import { exportData, importData } from "../api/dataMigration";
 import { cn } from "@/lib/utils";
+import { LLM_PROVIDERS, EMBEDDING_PROVIDERS, matchProvider } from "@/lib/providers";
+import ProviderSelect from "@/components/ProviderSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,6 +115,7 @@ const DIVERGENCE_OPTIONS = [
 ];
 
 export default function Settings() {
+  const [llmProvider, setLlmProvider] = useState("");
   const [apiBase, setApiBase] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("");
@@ -127,6 +130,7 @@ export default function Settings() {
 
   // Embedding 配置（每用户，hot-reload；空字段继承全局默认）
   const [embBackend, setEmbBackend] = useState("");  // "" | api | local
+  const [embProvider, setEmbProvider] = useState("");
   const [embApiBase, setEmbApiBase] = useState("");
   const [embApiKey, setEmbApiKey] = useState("");
   const [embApiModel, setEmbApiModel] = useState("");
@@ -215,13 +219,18 @@ export default function Settings() {
   useEffect(() => {
     getSettings()
       .then((data) => {
-        setApiBase(data.llm.api_base || "");
+        const llmProv = matchProvider(data.llm.api_base || "", LLM_PROVIDERS);
+        const llmSelected = LLM_PROVIDERS.find((p) => p.id === data.llm.provider) || llmProv;
+        setLlmProvider(llmSelected.id);
+        setApiBase(data.llm.api_base || llmSelected.base_url);
         setApiKey(data.llm.api_key || "");
         setModel(data.llm.model || "");
         setTemperature(data.llm.temperature ?? 0.7);
         const emb = data.embedding || {};
+        const embProv = matchProvider(emb.api_base || "", EMBEDDING_PROVIDERS);
         setEmbBackend(emb.backend || "");
-        setEmbApiBase(emb.api_base || "");
+        setEmbProvider(embProv.id);
+        setEmbApiBase(emb.api_base || embProv.base_url);
         setEmbApiKey(emb.api_key || "");
         setEmbApiModel(emb.api_model || "");
         setEmbApiBatchSize(emb.api_batch_size ?? 10);
@@ -465,7 +474,7 @@ export default function Settings() {
   const handleTestLLM = async () => {
     setLlmTest({ status: "testing" });
     try {
-      const r = await testLLMConnection({ api_base: apiBase, api_key: apiKey, model });
+      const r = await testLLMConnection({ provider: llmProvider, api_base: apiBase, api_key: apiKey, model });
       setLlmTest(r.ok ? { status: "ok" } : { status: "fail", error: r.error });
     } catch (err) {
       setLlmTest({ status: "fail", error: err.message });
@@ -495,7 +504,7 @@ export default function Settings() {
     setError("");
     try {
       const res = await updateSettings({
-        llm: { api_base: apiBase, api_key: apiKey, model, temperature },
+        llm: { provider: llmProvider, api_base: apiBase, api_key: apiKey, model, temperature },
         embedding: {
           backend: embBackend,
           api_base: embApiBase,
@@ -586,7 +595,7 @@ export default function Settings() {
         )}
       </Button>
       {test?.status === "ok" ? (
-        <span className="flex items-center gap-1.5 text-[13px] text-emerald-500">
+        <span className="flex items-center gap-1.5 text-[13px] text-green">
           <Check size={15} /> 连接正常
         </span>
       ) : test?.status === "fail" ? (
@@ -636,7 +645,7 @@ export default function Settings() {
                   )}
                 >
                   {active && (
-                    <div className="absolute left-0 top-1/2 hidden h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-primary drop-shadow-[0_0_4px_currentColor] lg:block" />
+                    <div className="absolute left-0 top-1/2 hidden h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-primary lg:block" />
                   )}
                   <Icon
                     size={16}
@@ -659,6 +668,22 @@ export default function Settings() {
               <span className="text-base font-semibold">LLM 服务配置</span>
             </div>
             <div className="text-[13px] text-dim mb-6">你自己的 LLM，仅对你生效。系统不提供共享 key，这里必须填你自己的；更改后立即生效。</div>
+
+            <div className="space-y-2 mb-4">
+              <Label className={labelClass}>服务商</Label>
+              <ProviderSelect
+                value={llmProvider}
+                options={LLM_PROVIDERS}
+                onChange={(id, opt) => {
+                  setLlmProvider(id);
+                  setApiBase(opt.base_url);
+                }}
+              />
+              <div className="text-[12px] text-dim/70">
+                选择服务商后自动填充下方 Base URL（仍可手动覆盖）。
+                {LLM_PROVIDERS.find((o) => o.id === llmProvider)?.hint}
+              </div>
+            </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
@@ -728,7 +753,7 @@ export default function Settings() {
             </div>
             <div className="text-[13px] text-dim mb-6">
               你自己的 Embedding，仅对你生效；用于题库 / 简历 / 知识库的向量化，必须配置。
-              <span className="text-amber-500/90">更换模型后请点下方「更新向量索引」重建（会清空并重算向量，历史会话记忆向量无法恢复）。</span>
+              <span className="text-orange/90">更换模型后请点下方「更新向量索引」重建（会清空并重算向量，历史会话记忆向量无法恢复）。</span>
             </div>
 
             <div className="space-y-2.5 mb-5">
@@ -766,6 +791,21 @@ export default function Settings() {
             {(embBackend === "" || embBackend === "api") && (
               <div className="space-y-4">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-dim/60">API 模式</div>
+                <div className="space-y-2">
+                  <Label className={labelClass}>服务商</Label>
+                  <ProviderSelect
+                    value={embProvider}
+                    options={EMBEDDING_PROVIDERS}
+                    onChange={(id, opt) => {
+                      setEmbProvider(id);
+                      setEmbApiBase(opt.base_url);
+                    }}
+                  />
+                  <div className="text-[12px] text-dim/70">
+                    选择服务商后自动填充下方 Base URL（仍可手动覆盖）。
+                    {EMBEDDING_PROVIDERS.find((o) => o.id === embProvider)?.hint}
+                  </div>
+                </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label className={labelClass}>API Base URL</Label>
@@ -854,7 +894,7 @@ export default function Settings() {
             {renderTestRow(embTest, handleTestEmbedding)}
 
             {needsReindex && (
-              <div className="mt-6 flex items-start gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 text-[13px] text-amber-500/90">
+              <div className="mt-6 flex items-start gap-2 rounded-2xl border border-orange/40 bg-orange/5 p-4 text-[13px] text-orange/90">
                 <AlertTriangle size={16} className="mt-0.5 shrink-0" />
                 <span>
                   你更换了 Embedding 模型，旧向量已失效。点击下方按钮重建简历 / 知识库 / 记忆向量；
@@ -883,7 +923,7 @@ export default function Settings() {
                 </Button>
                 {!reindexing &&
                   (reindexDone ? (
-                    <span className="flex items-center gap-1.5 text-[13px] text-emerald-500">
+                    <span className="flex items-center gap-1.5 text-[13px] text-green">
                       <Check size={15} /> 已重建
                     </span>
                   ) : reindexError ? (
@@ -1329,9 +1369,9 @@ export default function Settings() {
                 </div>
 
                 {importConfirming ? (
-                  <div className="rounded-lg border border-amber-400/40 bg-amber-400/8 px-3 py-3">
+                  <div className="rounded-lg border border-orange/40 bg-orange/8 px-3 py-3">
                     <div className="flex items-start gap-2 mb-2.5">
-                      <AlertTriangle size={14} className="text-amber-500 mt-0.5 shrink-0" />
+                      <AlertTriangle size={14} className="text-orange mt-0.5 shrink-0" />
                       <div className="text-[13px]">
                         将把 <span className="font-medium">{importFile?.name}</span> 合并到当前账户。
                         {importDbStrategy === "overwrite" && "本地同 ID 的会话会被覆盖。"}

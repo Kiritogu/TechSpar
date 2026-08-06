@@ -47,17 +47,17 @@ export default function CopilotPanel({
         <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-dim/50">Console Uplink</span>
         <div className="flex gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-red/40" />
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500/40" />
+          <span className="w-1.5 h-1.5 rounded-full bg-orange/40" />
           <span className="w-1.5 h-1.5 rounded-full bg-green/40" />
         </div>
       </div>
 
       <div className="copilot-fade-up group">
         <div className="flex items-center gap-2.5 mb-2">
-          <div className={cn("flex items-center justify-center w-6 h-6 rounded-md", monitorData?.last_answer_feedback ? "bg-cyan-500/10 text-cyan-400" : "bg-dim/10 text-dim/40")}>
+          <div className={cn("flex items-center justify-center w-6 h-6 rounded-md", monitorData?.last_answer_feedback ? "bg-teal/10 text-teal" : "bg-dim/10 text-dim/40")}>
             <Eye size={12} />
           </div>
-          <span className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", monitorData?.last_answer_feedback ? "text-cyan-400/90" : "text-dim/40")}>回答评价</span>
+          <span className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", monitorData?.last_answer_feedback ? "text-teal/90" : "text-dim/40")}>回答评价</span>
         </div>
         <div className="pl-[34px]">
           {monitorData?.last_answer_feedback ? (
@@ -80,20 +80,20 @@ export default function CopilotPanel({
 
       <div className="copilot-fade-up copilot-stagger-1 group">
         <div className="flex items-center gap-2.5 mb-2">
-          <div className={cn("flex items-center justify-center w-6 h-6 rounded-md", hasData ? "bg-violet-500/10 text-violet-400" : "bg-dim/10 text-dim/40")}>
+          <div className={cn("flex items-center justify-center w-6 h-6 rounded-md", hasData ? "bg-teal/10 text-teal" : "bg-dim/10 text-dim/40")}>
             <Target size={12} />
           </div>
-          <span className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", hasData ? "text-violet-400/90" : "text-dim/40")}>当前考察</span>
+          <span className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", hasData ? "text-teal/90" : "text-dim/40")}>当前考察</span>
         </div>
         <div className="pl-[34px]">
           {hasData ? (
             <div className="flex items-center gap-3 flex-wrap">
-              <Badge variant="outline" className="border-violet-500/30 text-violet-400 bg-violet-500/5 h-[22px] px-2 shadow-sm rounded-md uppercase tracking-wider text-[10px]">
+              <Badge variant="outline" className="border-teal/30 text-teal bg-teal/5 h-[22px] px-2 shadow-sm rounded-md uppercase tracking-wider text-[10px]">
                 {update.intent || "unknown"}
               </Badge>
               {update.topic && <span className="text-[13px] font-semibold">{update.topic}</span>}
               {update.confidence > 0 && (
-                <span className="text-[11px] text-violet-400/60 ml-auto tabular-nums font-bold">{Math.round(update.confidence * 100)}% Match</span>
+                <span className="text-[11px] text-teal/60 ml-auto tabular-nums font-bold">{Math.round(update.confidence * 100)}% Match</span>
               )}
             </div>
           ) : (
@@ -180,10 +180,10 @@ export default function CopilotPanel({
 
       <div className="copilot-fade-up copilot-stagger-4 group">
         <div className="flex items-center gap-2.5 mb-2">
-          <div className={cn("flex items-center justify-center w-6 h-6 rounded-md", children.length > 0 ? "bg-amber-500/10 text-amber-500" : "bg-dim/10 text-dim/40")}>
+          <div className={cn("flex items-center justify-center w-6 h-6 rounded-md", children.length > 0 ? "bg-orange/10 text-orange" : "bg-dim/10 text-dim/40")}>
             <ChevronRight size={12} />
           </div>
-          <span className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", children.length > 0 ? "text-amber-500/90" : "text-dim/40")}>预测追问方向</span>
+          <span className={cn("text-[11px] font-bold uppercase tracking-[0.15em]", children.length > 0 ? "text-orange/90" : "text-dim/40")}>预测追问方向</span>
         </div>
         <div className="pl-[34px]">
           {children.length > 0 ? (
@@ -208,13 +208,13 @@ export default function CopilotPanel({
           <div className="w-full h-px bg-border/40 ml-[34px] my-4" />
           <div className="copilot-fade-up copilot-danger-glow group">
             <div className="flex items-center gap-2.5 mb-2">
-              <div className="flex items-center justify-center w-6 h-6 rounded-md bg-amber-500/10 text-amber-400">
+              <div className="flex items-center justify-center w-6 h-6 rounded-md bg-orange/10 text-orange">
                 <AlertTriangle size={12} />
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-amber-400">注意</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-orange">注意</span>
             </div>
             <div className="pl-[34px]">
-              <p className="text-[13px] leading-6 text-amber-500 font-medium">{riskAlert.message}</p>
+              <p className="text-[13px] leading-6 text-orange font-medium">{riskAlert.message}</p>
             </div>
           </div>
         </>

@@ -4,12 +4,13 @@ import ForceGraph2D from "react-force-graph-2d";
 import { getGraphData, getTopics } from "../api/interview";
 import { getTopicIcon } from "../utils/topicIcons";
 import { cn } from "@/lib/utils";
+import { PAGE_CLASS } from "@/lib/layout";
+import { ErrorState } from "@/components/ui/error-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-const PAGE_CLASS = "flex-1 w-full max-w-[1600px] mx-auto px-4 py-6 md:px-7 md:py-8 xl:px-10 2xl:px-12";
 const SIMILARITY_THRESHOLD = 0.65;
 
 const SCORE_FILTERS = [
@@ -24,6 +25,7 @@ export default function Graph() {
   const [topics, setTopics] = useState({});
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [graphData, setGraphData] = useState(null);
+  const [graphError, setGraphError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hoveredNode, setHoveredNode] = useState(null);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -67,6 +69,7 @@ export default function Graph() {
   const handleSelectTopic = async (key) => {
     setSelectedTopic(key);
     setGraphData(null);
+    setGraphError(null);
     setHoveredNode(null);
     setSelectedNodeId(null);
     setSearchQuery("");
@@ -83,6 +86,7 @@ export default function Graph() {
       }, 80);
     } catch {
       setGraphData({ nodes: [], links: [] });
+      setGraphError("图谱数据加载失败，请检查网络后重试。");
     } finally {
       setLoading(false);
     }
@@ -211,7 +215,7 @@ export default function Graph() {
     const dimmed = selectedNodeId != null && !selected && !connected;
     const color = scoreToColor(node.score);
     const isLight = !document.documentElement.classList.contains("dark");
-    const textColor = isLight ? "#18181B" : "#FAFAF9";
+    const textColor = isLight ? "#161a17" : "#edf3ee";
     const radius = baseRadius + (selected ? 2.5 : hovered ? 1.2 : 0);
 
     ctx.save();
@@ -235,7 +239,7 @@ export default function Graph() {
     }
 
     const label = node.focus_area || truncate(node.question, 18);
-    ctx.font = `${selected || hovered ? 12 : 10}px DM Sans, sans-serif`;
+    ctx.font = `${selected || hovered ? 12 : 10}px "Satoshi", "Noto Sans SC", sans-serif`;
     ctx.textAlign = "center";
     ctx.fillStyle = textColor;
     ctx.globalAlpha = dimmed ? 0.28 : selected || hovered ? 1 : 0.76;
@@ -251,7 +255,7 @@ export default function Graph() {
     const alpha = selectedNodeId == null ? alphaBase : selected ? Math.max(alphaBase, 0.46) : 0.035;
 
     ctx.save();
-    ctx.strokeStyle = selected ? `rgba(245,158,11,${alpha})` : `rgba(161,161,170,${alpha})`;
+    ctx.strokeStyle = selected ? `rgba(5,150,105,${alpha})` : `rgba(161,161,170,${alpha})`;
     ctx.lineWidth = selected ? 1.4 + link.similarity * 1.2 : 0.5 + link.similarity * 1.3;
     ctx.beginPath();
     ctx.moveTo(link.source.x, link.source.y);
@@ -324,7 +328,7 @@ export default function Graph() {
                     className={cn(
                       "h-10 rounded-full px-4",
                       selected
-                        ? "border border-primary/60 bg-primary/14 text-text shadow-[0_0_0_1px_rgba(245,158,11,0.08)]"
+                        ? "border border-primary/60 bg-primary/14 text-text shadow-[0_0_0_1px_rgba(5,150,105,0.08)]"
                         : "border border-transparent hover:border-border/80"
                     )}
                     onClick={() => handleSelectTopic(key)}
@@ -387,13 +391,13 @@ export default function Graph() {
       <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.36fr)_380px] 2xl:grid-cols-[minmax(0,1.42fr)_400px]">
         <Card
           ref={containerRef}
-          className="relative overflow-hidden rounded-[28px] border-border/80 bg-card/86"
+          className="relative overflow-hidden rounded-hero border-border/80 bg-card/86"
           style={{ minHeight: dimensions.height }}
         >
           <CardContent className="relative p-0">
             {selectedTopic && graphHasData && (
               <>
-                <div className="pointer-events-none absolute left-3 top-3 z-10 max-w-[320px] rounded-[20px] border border-border/80 bg-background/82 px-4 py-3 shadow-sm backdrop-blur-sm">
+                <div className="pointer-events-none absolute left-3 top-3 z-10 max-w-[320px] rounded-item border border-border/80 bg-background/82 px-4 py-3 shadow-sm backdrop-blur-sm">
                   <div className="text-sm font-semibold text-text">图例</div>
                   <div className="mt-2 space-y-2 text-xs leading-5 text-dim">
                     <div className="flex flex-wrap gap-x-4 gap-y-2">
@@ -437,7 +441,15 @@ export default function Graph() {
               </div>
             )}
 
-            {selectedTopic && !loading && graphData && graphData.nodes.length === 0 && (
+            {selectedTopic && !loading && graphError && (
+              <ErrorState
+                message={graphError}
+                onRetry={() => handleSelectTopic(selectedTopic)}
+                className="min-h-[480px]"
+              />
+            )}
+
+            {selectedTopic && !loading && graphData && graphData.nodes.length === 0 && !graphError && (
               <EmptyGraphState
                 title="该领域还没有图谱"
                 description="当前还没有可用于建图的已评分专项训练题。先完成几次专项训练，再回来查看关联图谱。"
@@ -495,7 +507,7 @@ export default function Graph() {
             )}
 
             {hoveredPreview && graphHasData && (
-              <div className="pointer-events-none absolute bottom-3 left-3 z-10 max-w-[360px] rounded-[20px] border border-border/80 bg-background/84 px-4 py-3 shadow-lg backdrop-blur-sm">
+              <div className="pointer-events-none absolute bottom-3 left-3 z-10 max-w-[360px] rounded-item border border-border/80 bg-background/84 px-4 py-3 shadow-lg backdrop-blur-sm">
                 <div className="text-sm font-medium leading-6 text-text">{hoveredPreview.question}</div>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-dim">
                   <ScorePill score={hoveredPreview.score} compact />
@@ -509,7 +521,7 @@ export default function Graph() {
         </Card>
 
         <div className="space-y-4">
-          <Card className="rounded-[28px] border-border/80 bg-card/88">
+          <Card className="rounded-hero border-border/80 bg-card/88">
             <CardContent className="p-5 md:p-6">
               <PanelHeader
                 title={selectedNode ? "节点详情" : "图谱摘要"}
@@ -538,7 +550,7 @@ export default function Graph() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[28px] border-border/80 bg-card/88">
+          <Card className="rounded-hero border-border/80 bg-card/88">
             <CardContent className="p-5 md:p-6">
               <PanelHeader
                 title="操作提示"
@@ -582,7 +594,7 @@ function PanelHeader({ title, caption }) {
 function EmptyGraphState({ title, description, action }) {
   return (
     <div className="flex min-h-[480px] items-center justify-center px-6 py-12">
-      <div className="max-w-md rounded-[26px] border border-dashed border-border/80 bg-background/55 px-6 py-8 text-center">
+      <div className="max-w-md rounded-panel border border-dashed border-border/80 bg-background/55 px-6 py-8 text-center">
         <div className="text-lg font-semibold text-text">{title}</div>
         <div className="mt-2 text-sm leading-6 text-dim">{description}</div>
         {action && <div className="mt-5">{action}</div>}
@@ -601,7 +613,7 @@ function GraphSummaryPanel({ graphInsights, selectedTopicInfo, scoreFilter, area
         <MetricTile label="语义连接" value={graphInsights.linkCount} />
       </div>
 
-      <div className="rounded-[22px] border border-border/80 bg-background/70 p-4">
+      <div className="rounded-panel border border-border/80 bg-background/70 p-4">
         <div className="text-sm font-semibold text-text">当前上下文</div>
         <div className="mt-2 flex flex-wrap gap-2 text-xs text-dim">
           <Badge variant="outline">{selectedTopicInfo?.name || "未选择领域"}</Badge>
@@ -611,7 +623,7 @@ function GraphSummaryPanel({ graphInsights, selectedTopicInfo, scoreFilter, area
         </div>
       </div>
 
-      <div className="rounded-[22px] border border-border/80 bg-background/70 p-4">
+      <div className="rounded-panel border border-border/80 bg-background/70 p-4">
         <div className="text-sm font-semibold text-text">高频 Focus Area</div>
         <div className="mt-3 space-y-2">
           {graphInsights.topAreas.length > 0 ? graphInsights.topAreas.map((item) => (
@@ -631,7 +643,7 @@ function GraphSummaryPanel({ graphInsights, selectedTopicInfo, scoreFilter, area
 function NodeDetailPanel({ node, relatedNodes, zoomLevel, onOpenReview, onClear }) {
   return (
     <div className="mt-4 space-y-4">
-      <div className="rounded-[22px] border border-border/80 bg-background/70 p-4">
+      <div className="rounded-panel border border-border/80 bg-background/70 p-4">
         <div className="text-sm leading-7 text-text">{node.question}</div>
         <div className="mt-3 flex flex-wrap gap-2">
           <ScorePill score={node.score} />
@@ -646,12 +658,12 @@ function NodeDetailPanel({ node, relatedNodes, zoomLevel, onOpenReview, onClear 
         </div>
       </div>
 
-      <div className="rounded-[22px] border border-primary/20 bg-primary/8 p-4">
+      <div className="rounded-panel border border-primary/20 bg-primary/8 p-4">
         <div className="text-sm font-semibold text-text">推荐动作</div>
         <div className="mt-2 text-sm leading-6 text-text">{buildNodeRecommendation(node)}</div>
       </div>
 
-      <div className="rounded-[22px] border border-border/80 bg-background/70 p-4">
+      <div className="rounded-panel border border-border/80 bg-background/70 p-4">
         <div className="text-sm font-semibold text-text">关联题</div>
         <div className="mt-3 space-y-2">
           {relatedNodes.length > 0 ? relatedNodes.map((item) => (
@@ -682,7 +694,7 @@ function NodeDetailPanel({ node, relatedNodes, zoomLevel, onOpenReview, onClear 
 
 function MetricTile({ label, value, valueClassName = "text-primary" }) {
   return (
-    <div className="rounded-[20px] border border-border/80 bg-background/70 px-4 py-3.5">
+    <div className="rounded-item border border-border/80 bg-background/70 px-4 py-3.5">
       <div className="text-xs text-dim">{label}</div>
       <div className={cn("mt-2 text-2xl font-semibold tracking-tight tabular-nums", valueClassName)}>{value}</div>
     </div>
@@ -691,7 +703,7 @@ function MetricTile({ label, value, valueClassName = "text-primary" }) {
 
 function HintRow({ title, body }) {
   return (
-    <div className="rounded-[20px] border border-border/80 bg-background/70 px-4 py-3.5">
+    <div className="rounded-item border border-border/80 bg-background/70 px-4 py-3.5">
       <div className="text-sm font-semibold text-text">{title}</div>
       <div className="mt-1 text-sm leading-6 text-dim">{body}</div>
     </div>
@@ -773,15 +785,15 @@ function clamp(value, min, max) {
 }
 
 function scoreToColor(score) {
-  if (score >= 8) return "#22C55E";
-  if (score >= 6) return "#FBBF24";
-  if (score >= 4) return "#FB923C";
+  if (score >= 8) return "#16A34A";
+  if (score >= 6) return "#0D9488";
+  if (score >= 4) return "#F59E0B";
   return "#EF4444";
 }
 
 function getScoreBg(score) {
-  if (score >= 8) return "rgba(34,197,94,0.15)";
-  if (score >= 6) return "rgba(245,158,11,0.15)";
-  if (score >= 4) return "rgba(251,146,60,0.16)";
+  if (score >= 8) return "rgba(22,163,74,0.15)";
+  if (score >= 6) return "rgba(13,148,136,0.15)";
+  if (score >= 4) return "rgba(245,158,11,0.15)";
   return "rgba(239,68,68,0.15)";
 }

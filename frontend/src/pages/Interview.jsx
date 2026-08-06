@@ -506,8 +506,8 @@ export default function Interview() {
                     </div>
                   </div>
                   {isJobPrep && currentQ.intent && (
-                    <div className="mt-4 rounded-xl bg-blue-500/8 border border-blue-500/15 px-4 py-3 text-sm leading-relaxed text-dim">
-                      <span className="text-blue-300 font-medium">面试官在看什么：</span> {currentQ.intent}
+                    <div className="mt-4 rounded-xl bg-teal/8 border border-teal/15 px-4 py-3 text-sm leading-relaxed text-dim">
+                      <span className="text-teal font-medium">面试官在看什么：</span> {currentQ.intent}
                     </div>
                   )}
                 </CardContent>

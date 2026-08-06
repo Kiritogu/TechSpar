@@ -165,6 +165,9 @@ class UserSettings(BaseModel):
 
 class LLMSettings(BaseModel):
     """Per-user LLM provider configuration."""
+    # 固定服务商 id: openai | bailian | deepseek | anthropic | gemini。
+    # "" = 旧配置/自定义,按 OpenAI 兼容 + api_base 处理。
+    provider: str = ""
     api_base: str = ""
     api_key: str = ""
     model: str = ""

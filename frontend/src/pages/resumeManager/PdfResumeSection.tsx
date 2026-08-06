@@ -21,12 +21,15 @@ import {
 } from "@/resume/ui/dialog";
 import ThemeModal from "@/resume/shared/ThemeModal";
 import { useResumeStore } from "@/resume/store/useResumeStore";
+import TopicSuggestionModal from "@/components/TopicSuggestionModal";
 import {
   deleteUploadedResume,
   getResumePdfBlob,
   getResumeStatus,
   parseUploadedResume,
+  suggestTopics,
   uploadResume,
+  type TopicSuggestion,
 } from "../../api/interview";
 import {
   buildResumeFromParsed,
@@ -65,6 +68,7 @@ export default function PdfResumeSection() {
   const [parsing, setParsing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [suggestion, setSuggestion] = useState<TopicSuggestion | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refreshStatus = useCallback(async () => {
@@ -96,6 +100,13 @@ export default function PdfResumeSection() {
       await uploadResume(file);
       toast.success("简历已上传");
       refreshStatus();
+      // 每次上传新简历后,根据简历建议训练领域(确认式,失败不阻塞)
+      try {
+        const s = await suggestTopics();
+        setSuggestion(s);
+      } catch {
+        toast.warning("已上传,但暂时无法生成领域建议,可稍后在题库页重试");
+      }
     } catch (err) {
       toast.error(`上传失败:${extractErrorMessage(err)}`);
     } finally {
@@ -285,6 +296,13 @@ export default function PdfResumeSection() {
         onClose={() => setConfirmDelete(false)}
         onConfirm={handleDelete}
         title={status?.filename || ""}
+      />
+
+      <TopicSuggestionModal
+        open={!!suggestion}
+        suggestion={suggestion}
+        onClose={() => setSuggestion(null)}
+        onApplied={() => {}}
       />
     </section>
   );

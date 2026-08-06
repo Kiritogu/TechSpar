@@ -32,7 +32,7 @@ def _core_file(topic_dir, filename: str):
 @router.get("/knowledge/{topic}/core")
 async def get_core_knowledge(topic: str, user_id: str = Depends(get_current_user)):
     """List core knowledge files for a topic."""
-    topics = load_topics(user_id)
+    topics = load_topics(user_id, include_hidden=True)
     if topic not in topics:
         raise HTTPException(400, f"Unknown topic: {topic}")
 
@@ -54,7 +54,7 @@ async def update_core_knowledge(
     user_id: str = Depends(get_current_user),
 ):
     """Update a core knowledge file."""
-    topics = load_topics(user_id)
+    topics = load_topics(user_id, include_hidden=True)
     if topic not in topics:
         raise HTTPException(400, f"Unknown topic: {topic}")
 
@@ -74,7 +74,7 @@ async def delete_core_knowledge(
     user_id: str = Depends(get_current_user),
 ):
     """Delete a core knowledge file."""
-    topics = load_topics(user_id)
+    topics = load_topics(user_id, include_hidden=True)
     if topic not in topics:
         raise HTTPException(400, f"Unknown topic: {topic}")
 
@@ -90,7 +90,7 @@ async def delete_core_knowledge(
 @router.post("/knowledge/{topic}/core")
 async def create_core_knowledge(topic: str, body: dict, user_id: str = Depends(get_current_user)):
     """Create a new core knowledge file."""
-    topics = load_topics(user_id)
+    topics = load_topics(user_id, include_hidden=True)
     if topic not in topics:
         raise HTTPException(400, f"Unknown topic: {topic}")
 
@@ -112,7 +112,7 @@ async def create_core_knowledge(topic: str, body: dict, user_id: str = Depends(g
 @router.post("/knowledge/{topic}/generate")
 async def generate_core_knowledge(topic: str, user_id: str = Depends(get_current_user)):
     """Use LLM to generate foundational knowledge content for a topic."""
-    topics = load_topics(user_id)
+    topics = load_topics(user_id, include_hidden=True)
     if topic not in topics:
         raise HTTPException(400, f"Unknown topic: {topic}")
 
@@ -145,7 +145,7 @@ async def generate_core_knowledge(topic: str, user_id: str = Depends(get_current
 @router.get("/knowledge/{topic}/high_freq")
 async def get_high_freq(topic: str, user_id: str = Depends(get_current_user)):
     """Get high-frequency question bank for a topic."""
-    topics = load_topics(user_id)
+    topics = load_topics(user_id, include_hidden=True)
     if topic not in topics:
         raise HTTPException(400, f"Unknown topic: {topic}")
 
@@ -158,7 +158,7 @@ async def get_high_freq(topic: str, user_id: str = Depends(get_current_user)):
 @router.put("/knowledge/{topic}/high_freq")
 async def update_high_freq(topic: str, body: dict, user_id: str = Depends(get_current_user)):
     """Update high-frequency question bank for a topic."""
-    topics = load_topics(user_id)
+    topics = load_topics(user_id, include_hidden=True)
     if topic not in topics:
         raise HTTPException(400, f"Unknown topic: {topic}")
 

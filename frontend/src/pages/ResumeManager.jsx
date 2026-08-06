@@ -5,6 +5,7 @@ import {
   Plus, FilePlus2, FileUp, Copy, Trash2, PenLine, FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PAGE_CLASS } from "@/lib/layout";
 import { useResumeStore } from "@/resume/store/useResumeStore";
 import { DEFAULT_TEMPLATES } from "@/resume/config";
 import ResumeTemplateComponent from "@/resume/templates";
@@ -13,8 +14,6 @@ import { generateUUID } from "@/resume/utils/uuid";
 import PdfResumeSection from "./resumeManager/PdfResumeSection";
 import "@/resume/styles/resume.css";
 import "@/resume/styles/fonts";
-
-const PAGE_CLASS = "flex-1 w-full max-w-[1600px] mx-auto px-4 py-6 md:px-7 md:py-8 xl:px-10 2xl:px-12";
 
 // A4 宽度按 96dpi 折算的像素值,缩略图按容器宽度等比缩放
 const A4_WIDTH_PX = 794;

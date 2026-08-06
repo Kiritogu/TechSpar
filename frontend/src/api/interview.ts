@@ -18,8 +18,11 @@ export async function transcribeAudio(
   return res.json();
 }
 
-export async function getTopics(): Promise<ApiResponse<"/api/topics", "get">> {
-  const res = await authFetch(`${API_BASE}/topics`);
+export async function getTopics(
+  includeHidden = false
+): Promise<ApiResponse<"/api/topics", "get">> {
+  const qs = includeHidden ? "?include_hidden=true" : "";
+  const res = await authFetch(`${API_BASE}/topics${qs}`);
   return res.json();
 }
 
@@ -42,6 +45,49 @@ export async function deleteTopic(
   const res = await authFetch(`${API_BASE}/topics/${encodeURIComponent(key)}`, {
     method: "DELETE",
   });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// ── Resume-based topic suggestions ──
+
+export interface SuggestedNewTopic {
+  name: string;
+  icon: string;
+  reason?: string;
+}
+
+export interface TopicSuggestion {
+  keep_keys: string[];
+  new_topics: SuggestedNewTopic[];
+}
+
+export async function suggestTopics(): Promise<TopicSuggestion> {
+  const res = await authFetch(`${API_BASE}/topics/suggest`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function applyTopicSuggestions(payload: {
+  keep_keys: string[];
+  new_topics: SuggestedNewTopic[];
+}) {
+  const res = await authFetch(`${API_BASE}/topics/apply-suggestions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function restoreTopic(key: string) {
+  const res = await authFetch(
+    `${API_BASE}/topics/${encodeURIComponent(key)}/restore`,
+    { method: "POST" }
+  );
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -522,6 +568,7 @@ export async function updateSettings(
 }
 
 interface LLMConnectionPayload {
+  provider?: string;
   api_base?: string;
   api_key?: string;
   model?: string;
@@ -529,6 +576,7 @@ interface LLMConnectionPayload {
 
 // 连接测试：探测「表单里当前填的」配置（尚未保存也能测），返回 { ok, error }
 export async function testLLMConnection({
+  provider,
   api_base,
   api_key,
   model,
@@ -538,7 +586,7 @@ export async function testLLMConnection({
   const res = await authFetch(`${API_BASE}/settings/test-llm`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ api_base, api_key, model }),
+    body: JSON.stringify({ provider, api_base, api_key, model }),
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();

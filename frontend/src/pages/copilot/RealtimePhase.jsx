@@ -227,22 +227,22 @@ export default function RealtimePhase({ prepId, onBack }) {
           <div className="px-5 py-3 border-b border-border/40 bg-background/40 backdrop-blur-md shrink-0 grid grid-cols-2 gap-3 shadow-[0_1px_15px_rgba(0,0,0,0.02)] z-10">
             <div className="min-w-0 rounded-xl border border-border/50 bg-card/65 px-4 py-2.5 shadow-sm">
               <div className="flex items-center gap-2 mb-1">
-                <span className={cn("inline-block w-2 h-2 rounded-full shrink-0", monitorData?.phase ? "bg-cyan-500 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" : "bg-dim/30")} />
+                <span className={cn("inline-block w-2 h-2 rounded-full shrink-0", monitorData?.phase ? "bg-teal animate-pulse" : "bg-dim/30")} />
                 <span className="font-bold text-text uppercase tracking-[0.16em] text-[11px]">
                   {monitorData?.phase || "监听引擎"}
                 </span>
               </div>
-              <p className={cn("text-[12.5px] leading-[1.55] line-clamp-2", monitorData?.strategy_tip ? "text-cyan-400/95 font-medium" : "text-dim/40")}>
+              <p className={cn("text-[12.5px] leading-[1.55] line-clamp-2", monitorData?.strategy_tip ? "text-teal/90 font-medium" : "text-dim/40")}>
                 {monitorData?.strategy_tip || "等待对话启动分析..."}
               </p>
             </div>
 
             <div className="min-w-0 rounded-xl border border-border/50 bg-card/65 px-4 py-2.5 shadow-sm">
               <div className="flex items-center gap-2 mb-1">
-                <span className={cn("inline-block w-2 h-2 rounded-full shrink-0", hrProfile ? "bg-violet-500 animate-pulse shadow-[0_0_8px_rgba(139,92,246,0.8)]" : "bg-dim/30")} />
+                <span className={cn("inline-block w-2 h-2 rounded-full shrink-0", hrProfile ? "bg-teal animate-pulse" : "bg-dim/30")} />
                 <span className="font-bold text-text uppercase tracking-[0.16em] text-[11px]">HR 行为基线</span>
               </div>
-              <p className={cn("text-[12.5px] leading-[1.55] line-clamp-2", hrProfile ? "text-violet-400/95 font-medium" : "text-dim/40")}>
+              <p className={cn("text-[12.5px] leading-[1.55] line-clamp-2", hrProfile ? "text-teal/90 font-medium" : "text-dim/40")}>
                 {hrProfile ? `${hrProfile.style} · ${hrProfile.advice}` : "数据采集中 (0/3 轮)"}
               </p>
             </div>
@@ -256,7 +256,7 @@ export default function RealtimePhase({ prepId, onBack }) {
                   <div className="absolute w-[240px] h-[240px] rounded-full border border-primary/10 animate-ping" style={{ animationDuration: "4s" }} />
                 </div>
 
-                <div className="relative mb-6 z-10 flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.15)]">
+                <div className="relative mb-6 z-10 flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary">
                   <Mic size={28} className="animate-pulse" />
                 </div>
                 <p className="font-medium tracking-widest uppercase text-[12px] z-10 text-text/80">AI Copilot 雷达已开启</p>

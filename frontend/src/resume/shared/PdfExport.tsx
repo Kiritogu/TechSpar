@@ -202,8 +202,8 @@ const PdfExport = ({ children }: { children?: React.ReactNode }) => {
               description={t("modal.printDesc")}
               isLoading={isPrinting}
               onClick={handlePrint}
-              bgGradientClass="from-sky-500/10 dark:from-sky-500/20"
-              hoverBorderClass="hover:border-sky-500/40 hover:ring-1 hover:ring-sky-500/20"
+              bgGradientClass="from-info/10 dark:from-info/20"
+              hoverBorderClass="hover:border-info/40 hover:ring-1 hover:ring-info/20"
             />
             <ExportCard
               icon={JsonGlassIcon}
@@ -211,8 +211,8 @@ const PdfExport = ({ children }: { children?: React.ReactNode }) => {
               description={t("modal.jsonDesc")}
               isLoading={isExportingJson}
               onClick={handleJsonExport}
-              bgGradientClass="from-amber-500/10 dark:from-amber-500/20"
-              hoverBorderClass="hover:border-amber-500/40 hover:ring-1 hover:ring-amber-500/20"
+              bgGradientClass="from-orange/10 dark:from-orange/20"
+              hoverBorderClass="hover:border-orange/40 hover:ring-1 hover:ring-orange/20"
             />
             <ExportCard
               icon={MarkdownGlassIcon}
@@ -220,13 +220,13 @@ const PdfExport = ({ children }: { children?: React.ReactNode }) => {
               description={t("modal.markdownDesc")}
               isLoading={isExportingMarkdown}
               onClick={handleMarkdownExport}
-              bgGradientClass="from-indigo-500/10 dark:from-indigo-500/20"
-              hoverBorderClass="hover:border-indigo-500/40 hover:ring-1 hover:ring-indigo-500/20"
+              bgGradientClass="from-teal/10 dark:from-teal/20"
+              hoverBorderClass="hover:border-teal/40 hover:ring-1 hover:ring-teal/20"
             />
           </div>
 
           {/* 隐私保护横幅 */}
-          <div className="mt-6 flex items-center gap-2 p-3 sm:px-4 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+          <div className="mt-6 flex items-center gap-2 p-3 sm:px-4 rounded-xl bg-green/10 border border-green/20 text-green">
             <ShieldCheck className="w-4 h-4 shrink-0" />
             <p className="text-[13px] font-medium">
               {t("modal.privacyNotice")}

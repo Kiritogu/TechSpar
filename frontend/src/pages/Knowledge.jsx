@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
-import { Menu, X, Sparkles, ChevronRight, ChevronDown } from "lucide-react";
+import { Menu, X, Sparkles, RotateCcw, Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import { getTopicIcon, ICON_OPTIONS } from "../utils/topicIcons";
 import {
   getTopics, getCoreKnowledge, updateCoreKnowledge, createCoreKnowledge,
   deleteCoreKnowledge, getHighFreq, updateHighFreq, createTopic, deleteTopic, generateKnowledge,
+  suggestTopics, restoreTopic,
 } from "../api/interview";
+import TopicSuggestionModal from "../components/TopicSuggestionModal";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,15 +40,18 @@ export default function Knowledge() {
   const [newTopicName, setNewTopicName] = useState("");
   const [newTopicIcon, setNewTopicIcon] = useState("FileText");
 
+  const [suggestion, setSuggestion] = useState(null);
+  const [suggesting, setSuggesting] = useState(false);
+
   const refreshTopics = useCallback(async () => {
-    const t = await getTopics();
+    const t = await getTopics(true);
     setTopics(t);
     return t;
   }, []);
 
   useEffect(() => {
     let active = true;
-    getTopics()
+    getTopics(true)
       .then((nextTopics) => {
         if (!active) return;
         setTopics(nextTopics);
@@ -171,7 +176,25 @@ export default function Knowledge() {
     } catch (e) { alert("删除失败: " + e.message); }
   };
 
+  const handleRestoreTopic = async (key) => {
+    try {
+      await restoreTopic(key);
+      await refreshTopics();
+    } catch (e) { alert("恢复失败: " + e.message); }
+  };
+
+  const handleSuggest = async () => {
+    setSuggesting(true);
+    try {
+      const s = await suggestTopics();
+      setSuggestion(s);
+    } catch (e) { alert("生成领域建议失败: " + e.message); }
+    finally { setSuggesting(false); }
+  };
+
   const topicKeys = Object.keys(topics);
+  const visibleKeys = topicKeys.filter((k) => !topics[k]?.hidden);
+  const hiddenKeys = topicKeys.filter((k) => topics[k]?.hidden);
 
   return (
     <div className="flex flex-1 overflow-hidden h-full">
@@ -190,10 +213,13 @@ export default function Knowledge() {
       )}>
         <div className="flex justify-between items-center mb-3 px-2">
           <div className="text-[13px] font-semibold text-dim">专项领域</div>
+          <Button variant="ghost" size="icon" className="w-6 h-6 text-base" title="根据简历推荐领域" onClick={handleSuggest} disabled={suggesting}>
+            {suggesting ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+          </Button>
           <Button variant="ghost" size="icon" className="w-6 h-6 text-base" title="新增领域" onClick={() => setShowAddTopic(true)}>+</Button>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {topicKeys.map((key) => (
+          {visibleKeys.map((key) => (
             <div key={key} className="relative mb-0.5 group">
               <button
                 className={cn(
@@ -212,6 +238,28 @@ export default function Knowledge() {
               ><X size={14} /></button>
             </div>
           ))}
+
+          {hiddenKeys.length > 0 && (
+            <>
+              <div className="mt-3 mb-1 px-2 text-[11px] font-medium text-dim uppercase tracking-wide">已隐藏</div>
+              {hiddenKeys.map((key) => (
+                <div key={key} className="relative mb-0.5 group">
+                  <button
+                    className="w-full px-3 py-2.5 rounded-lg text-sm text-left flex items-center gap-2 opacity-60 cursor-pointer transition-all hover:bg-hover"
+                    onClick={() => { setSelected(key); setSidebarOpen(false); }}
+                  >
+                    <span className="text-dim">{getTopicIcon(topics[key]?.icon, 16)}</span>
+                    <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{topics[key]?.name || key}</span>
+                  </button>
+                  <button
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-dim text-sm px-1.5 py-1 rounded opacity-0 group-hover:opacity-100 hover:text-primary hover:bg-red/10 transition-all cursor-pointer"
+                    title="恢复领域"
+                    onClick={() => handleRestoreTopic(key)}
+                  ><RotateCcw size={14} /></button>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </div>
 
@@ -398,6 +446,13 @@ export default function Knowledge() {
           )}
         </div>
       </div>
+
+      <TopicSuggestionModal
+        open={!!suggestion}
+        suggestion={suggestion}
+        onClose={() => setSuggestion(null)}
+        onApplied={() => refreshTopics()}
+      />
     </div>
   );
 }

@@ -71,7 +71,7 @@ export default function Sidebar() {
       >
         {!active && <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />}
         {active && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary drop-shadow-[0_0_4px_currentColor]" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary" />
         )}
         <Icon size={18} className={cn("shrink-0 relative z-10 transition-transform duration-300", active ? "text-primary" : "text-dim group-hover:text-primary group-hover:scale-[1.15]")} />
         {!collapsed && <span className="truncate relative z-10 transition-transform duration-300 group-hover:translate-x-1">{label}</span>}

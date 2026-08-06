@@ -42,15 +42,20 @@ KNOWLEDGE_CHAR_BUDGET = 8000
 
 # ── Topics registry (topics.json) — not vector-related ──
 
-def load_topics(user_id: str) -> dict:
-    """Load topics from user's topics.json. Returns {key: {name, icon, dir}}."""
-    from backend.preset_topics import ensure_preset_topics
+def load_topics(user_id: str, include_hidden: bool = False) -> dict:
+    """Load topics from user's topics.json. Returns {key: {name, icon, dir}}.
 
-    ensure_preset_topics(user_id)
+    By default, topics flagged `hidden: true` are excluded (drill, question
+    generation, and the public topic list should not surface hidden domains).
+    Pass include_hidden=True to see everything (e.g. the knowledge page's
+    archived section used to restore a hidden preset)."""
     path = settings.user_topics_path(user_id)
-    if path.exists():
-        return json.loads(path.read_text(encoding="utf-8"))
-    return {}
+    if not path.exists():
+        return {}
+    topics = json.loads(path.read_text(encoding="utf-8"))
+    if not include_hidden:
+        topics = {k: v for k, v in topics.items() if not v.get("hidden")}
+    return topics
 
 
 def save_topics(topics: dict, user_id: str):

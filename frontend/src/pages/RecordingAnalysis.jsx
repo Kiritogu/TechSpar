@@ -4,14 +4,13 @@ import { CheckCircle2, FileText, Loader2, Upload, User, Users } from "lucide-rea
 import { transcribeRecording, analyzeRecording } from "../api/interview";
 import useTaskStatus from "../hooks/useTaskStatus";
 import { cn } from "@/lib/utils";
+import { PAGE_CLASS } from "@/lib/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-
-const PAGE_CLASS = "flex-1 w-full max-w-[1600px] mx-auto px-4 py-6 md:px-7 md:py-8 xl:px-10 2xl:px-12";
 
 const RECORDING_MODES = [
   {
@@ -34,15 +33,15 @@ const RECORDING_MODES = [
 
 function toneClasses(tone) {
   if (tone === "green") return "border-green/20 bg-green/8 text-green";
-  if (tone === "blue") return "border-blue-500/20 bg-blue-500/8 text-blue-300";
-  if (tone === "amber") return "border-amber-500/20 bg-amber-500/10 text-amber-300";
+  if (tone === "blue") return "border-teal/20 bg-teal/8 text-teal";
+  if (tone === "amber") return "border-orange/20 bg-orange/10 text-orange";
   return "border-border/80 bg-card/72 text-text";
 }
 
 function modeClasses(selected, tone) {
   if (!selected) return "border-border/75 bg-card/72 hover:border-border";
   if (tone === "green") return "border-green/30 bg-green/8";
-  return "border-blue-500/30 bg-blue-500/8";
+  return "border-teal/30 bg-teal/8";
 }
 
 function formatFileSize(size) {
@@ -154,7 +153,7 @@ export default function RecordingAnalysis() {
                           key={item.key}
                           type="button"
                           className={cn(
-                            "rounded-[24px] border p-4 text-left transition-colors",
+                            "rounded-panel border p-4 text-left transition-colors",
                             modeClasses(selected, item.tone)
                           )}
                           onClick={() => setRecordingMode(item.key)}
@@ -166,7 +165,7 @@ export default function RecordingAnalysis() {
                                 selected
                                   ? item.tone === "green"
                                     ? "bg-green/15 text-green"
-                                    : "bg-blue-500/15 text-blue-400"
+                                    : "bg-teal/15 text-teal"
                                   : "bg-hover text-dim"
                               )}
                             >
@@ -208,7 +207,7 @@ export default function RecordingAnalysis() {
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-border/80 bg-background/65 p-4 md:p-5">
+                <div className="rounded-hero border border-border/80 bg-background/65 p-4 md:p-5">
                   <div className="flex flex-col gap-3 border-b border-border/70 pb-4 md:flex-row md:items-end md:justify-between">
                     <div>
                       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-dim/80">输入方式</div>
@@ -241,7 +240,7 @@ export default function RecordingAnalysis() {
                       <button
                         type="button"
                         className={cn(
-                          "w-full rounded-[24px] border p-6 text-left transition-colors",
+                          "w-full rounded-panel border p-6 text-left transition-colors",
                           audioFile ? "border-primary/30 bg-primary/5" : "border-dashed border-border/80 bg-card/55 hover:bg-card/72"
                         )}
                         onClick={() => fileRef.current?.click()}
@@ -280,7 +279,7 @@ export default function RecordingAnalysis() {
                         <div className="text-xs text-dim tabular-nums">{transcriptCount} 字</div>
                       </div>
                       <Textarea
-                        className="min-h-[340px] rounded-[24px] border-border/70 bg-background/80 px-4 py-4 text-[15px] leading-7 resize-y"
+                        className="min-h-[340px] rounded-panel border-border/70 bg-background/80 px-4 py-4 text-[15px] leading-7 resize-y"
                         placeholder={
                           recordingMode === "dual"
                             ? "粘贴面试对话记录。\n\n示例：\n面试官：请介绍一下你自己\n我：我是..."
@@ -304,7 +303,7 @@ export default function RecordingAnalysis() {
                         <div className="text-xs text-dim tabular-nums">{transcriptCount} 字</div>
                       </div>
                       <Textarea
-                        className="mt-4 min-h-[340px] rounded-[24px] border-border/70 bg-background/80 px-4 py-4 text-[15px] leading-7 resize-y"
+                        className="mt-4 min-h-[340px] rounded-panel border-border/70 bg-background/80 px-4 py-4 text-[15px] leading-7 resize-y"
                         value={transcript}
                         onChange={(event) => setTranscript(event.target.value)}
                       />

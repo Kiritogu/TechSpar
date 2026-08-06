@@ -11,14 +11,13 @@ import {
 } from "lucide-react";
 import { getResumeStatus, previewJobPrep, startJobPrep } from "../api/interview";
 import { cn } from "@/lib/utils";
+import { PAGE_CLASS } from "@/lib/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-const PAGE_CLASS = "flex-1 w-full max-w-[1600px] mx-auto px-4 py-6 md:px-7 md:py-8 xl:px-10 2xl:px-12";
 
 // Survive leaving the page without starting practice — a JD analysis costs an LLM
 // call, so persist inputs + result locally and restore them on return.
@@ -55,8 +54,8 @@ function buildStatus({ preview, previewStale, previewing, starting }) {
 
 function toneClasses(tone) {
   if (tone === "green") return "border-green/20 bg-green/8 text-green";
-  if (tone === "blue") return "border-blue-500/20 bg-blue-500/8 text-blue-300";
-  if (tone === "amber") return "border-amber-500/20 bg-amber-500/10 text-amber-300";
+  if (tone === "blue") return "border-teal/20 bg-teal/8 text-teal";
+  if (tone === "amber") return "border-orange/20 bg-orange/10 text-orange";
   return "border-border/80 bg-card/82 text-text";
 }
 
@@ -182,7 +181,7 @@ export default function JobPrep() {
                   </div>
                 </div>
 
-                <div className="rounded-[28px] border border-border/80 bg-background/65 p-4 md:p-5">
+                <div className="rounded-hero border border-border/80 bg-background/65 p-4 md:p-5">
                   <div className="flex flex-col gap-3 border-b border-border/70 pb-4 md:flex-row md:items-end md:justify-between">
                     <div>
                       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-dim/80">岗位 JD</div>
@@ -196,7 +195,7 @@ export default function JobPrep() {
                   </div>
 
                   <Textarea
-                    className="mt-4 min-h-[360px] rounded-[24px] border-border/70 bg-background/80 px-4 py-4 text-[15px] leading-7 resize-y md:min-h-[440px]"
+                    className="mt-4 min-h-[360px] rounded-panel border-border/70 bg-background/80 px-4 py-4 text-[15px] leading-7 resize-y md:min-h-[440px]"
                     placeholder="粘贴完整 JD。优先保留职责、任职要求、加分项、业务背景和技术栈。"
                     value={jdText}
                     onChange={(event) => setJdText(event.target.value)}
@@ -251,7 +250,7 @@ export default function JobPrep() {
           )}
 
           {previewStale && (
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
+            <div className="rounded-2xl border border-orange/20 bg-orange/10 px-4 py-3 text-sm text-orange">
               你修改了 JD 或岗位信息，当前分析已经过时。重新分析后再开始训练。
             </div>
           )}
@@ -366,7 +365,7 @@ export default function JobPrep() {
               <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <BriefcaseBusiness size={18} className="text-blue-400" />
+                    <BriefcaseBusiness size={18} className="text-teal" />
                     <div className="text-xl font-semibold">
                       {preview.company ? `${preview.company} · ` : ""}{preview.position || "目标岗位"}
                     </div>
@@ -387,8 +386,8 @@ export default function JobPrep() {
               </div>
 
               {preview.resume_alignment?.fit_assessment && (
-                <div className="mt-5 rounded-2xl border border-blue-500/20 bg-blue-500/8 px-4 py-3 text-sm leading-7 text-blue-100">
-                  <div className="mb-1 text-[13px] font-semibold text-blue-300">岗位匹配判断</div>
+                <div className="mt-5 rounded-2xl border border-teal/20 bg-teal/8 px-4 py-3 text-sm leading-7 text-teal/90">
+                  <div className="mb-1 text-[13px] font-semibold text-teal">岗位匹配判断</div>
                   {preview.resume_alignment.fit_assessment}
                 </div>
               )}
@@ -437,7 +436,7 @@ export default function JobPrep() {
               <CardContent className="p-5 md:p-6">
                 <SectionTitle icon={<FileText size={17} className="text-green" />} title="简历对位建议" />
                 <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                  <div className="rounded-[24px] border border-green/15 bg-green/8 p-4">
+                  <div className="rounded-panel border border-green/15 bg-green/8 p-4">
                     <div className="text-[13px] font-semibold text-green">你现在能打的点</div>
                     <div className="mt-3 space-y-2">
                       {(preview.resume_alignment?.matching_evidence || []).map((item, index) => (
@@ -448,7 +447,7 @@ export default function JobPrep() {
                     </div>
                   </div>
 
-                  <div className="rounded-[24px] border border-border/75 bg-card/75 p-4">
+                  <div className="rounded-panel border border-border/75 bg-card/75 p-4">
                     <div className="text-[13px] font-semibold text-primary">优先拿来讲的经历</div>
                     <div className="mt-3 space-y-2">
                       {(preview.resume_alignment?.recommended_stories || []).map((item, index) => (
@@ -469,7 +468,7 @@ export default function JobPrep() {
               <SectionTitle icon={<Sparkles size={17} className="text-primary" />} title="高概率提问方向" />
               <div className="mt-4 grid gap-4 lg:grid-cols-2">
                 {(preview.likely_question_groups || []).map((group, index) => (
-                  <div key={`${group.title}-${index}`} className="rounded-[24px] border border-border/75 bg-card/75 p-4">
+                  <div key={`${group.title}-${index}`} className="rounded-panel border border-border/75 bg-card/75 p-4">
                     <div className="text-sm font-semibold">{group.title}</div>
                     <div className="mt-2 text-[13px] leading-6 text-dim">{group.reason}</div>
                     <div className="mt-4 space-y-2">

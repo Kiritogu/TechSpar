@@ -13,10 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { LLM_PROVIDERS, EMBEDDING_PROVIDERS, matchProvider } from "@/lib/providers";
+import ProviderSelect from "@/components/ProviderSelect";
 import Logo from "../components/Logo";
 
-// 首登引导：每个用户都得带自己的 key,这里两步把 LLM + Embedding 配齐。
-// 其余可选服务(语音/搜索/录音上传)留到设置页按需填。
+// 首登引导：每个用户都得带自己的 key。固定服务商下拉，用户只需填模型名 + API Key，
+// Base URL 由服务商自动确定。两步把 LLM + Embedding 配齐。
 export default function Onboarding() {
   const { setNeedsOnboarding, logout } = useAuth();
   const navigate = useNavigate();
@@ -28,10 +30,13 @@ export default function Onboarding() {
   const [showKey, setShowKey] = useState(false);
   const [showEmbKey, setShowEmbKey] = useState(false);
 
-  const [apiBase, setApiBase] = useState("");
+  const [llmProvider, setLlmProvider] = useState(LLM_PROVIDERS[0].id);
+  const [apiBase, setApiBase] = useState(LLM_PROVIDERS[0].base_url);
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("");
-  const [embApiBase, setEmbApiBase] = useState("");
+
+  const [embProvider, setEmbProvider] = useState(EMBEDDING_PROVIDERS[0].id);
+  const [embApiBase, setEmbApiBase] = useState(EMBEDDING_PROVIDERS[0].base_url);
   const [embApiKey, setEmbApiKey] = useState("");
   const [embApiModel, setEmbApiModel] = useState("");
 
@@ -41,11 +46,16 @@ export default function Onboarding() {
   useEffect(() => {
     getSettings()
       .then((data) => {
-        setApiBase(data.llm?.api_base || "");
+        const llmProv = matchProvider(data.llm?.api_base || "", LLM_PROVIDERS);
+        const llmSelected = LLM_PROVIDERS.find((p) => p.id === data.llm?.provider) || llmProv;
+        setLlmProvider(llmSelected.id);
+        setApiBase(llmSelected.base_url);
         setApiKey(data.llm?.api_key || "");
         setModel(data.llm?.model || "");
         const emb = data.embedding || {};
-        setEmbApiBase(emb.api_base || "");
+        const embProv = matchProvider(emb.api_base || "", EMBEDDING_PROVIDERS);
+        setEmbProvider(embProv.id);
+        setEmbApiBase(embProv.base_url);
         setEmbApiKey(emb.api_key || "");
         setEmbApiModel(emb.api_model || "");
         setBase(data);
@@ -63,7 +73,8 @@ export default function Onboarding() {
     setError("");
     try {
       const r = await testLLMConnection({
-        api_base: apiBase.trim(),
+        provider: llmProvider,
+        api_base: apiBase,
         api_key: apiKey.trim(),
         model: model.trim(),
       });
@@ -85,7 +96,7 @@ export default function Onboarding() {
     try {
       const r = await testEmbeddingConnection({
         backend: "api",
-        api_base: embApiBase.trim(),
+        api_base: embApiBase,
         api_key: embApiKey.trim(),
         api_model: embApiModel.trim(),
       });
@@ -96,14 +107,15 @@ export default function Onboarding() {
       }
       await updateSettings({
         llm: {
-          api_base: apiBase.trim(),
+          provider: llmProvider,
+          api_base: apiBase,
           api_key: apiKey.trim(),
           model: model.trim(),
           temperature: base?.llm?.temperature ?? 0.7,
         },
         embedding: {
           backend: "api",
-          api_base: embApiBase.trim(),
+          api_base: embApiBase,
           api_key: embApiKey.trim(),
           api_model: embApiModel.trim(),
           local_model: "",
@@ -176,15 +188,25 @@ export default function Onboarding() {
             ) : step === 1 ? (
               <div className="space-y-4">
                 <div className="text-[13px] text-dim">
-                  填你自己的 LLM(OpenAI 兼容接口)。没有的话,ModelScope 的 <span className="text-text">ZhipuAI/GLM-5</span> 有免费额度可先跑通。
+                  选择服务商，填写模型名和你的 API Key。Base URL 由服务商自动确定，无需手动填写。
                 </div>
                 <div className="space-y-2">
-                  <Label className={labelClass}>API Base URL</Label>
-                  <Input className={inputClass} autoComplete="off" placeholder="例：https://api-inference.modelscope.cn/v1" value={apiBase} onChange={(e) => setApiBase(e.target.value)} />
+                  <Label className={labelClass}>服务商</Label>
+                  <ProviderSelect
+                    value={llmProvider}
+                    options={LLM_PROVIDERS}
+                    onChange={(id, opt) => {
+                      setLlmProvider(id);
+                      setApiBase(opt.base_url);
+                    }}
+                  />
+                  <div className="text-[12px] text-dim/70">
+                    {LLM_PROVIDERS.find((o) => o.id === llmProvider)?.hint}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label className={labelClass}>Model</Label>
-                  <Input className={inputClass} autoComplete="off" placeholder="例：ZhipuAI/GLM-5" value={model} onChange={(e) => setModel(e.target.value)} />
+                  <Input className={inputClass} autoComplete="off" placeholder="输入模型名，如 gpt-4o" value={model} onChange={(e) => setModel(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label className={labelClass}>API Key</Label>
@@ -202,19 +224,32 @@ export default function Onboarding() {
                     </button>
                   </div>
                 </div>
+                <div className="rounded-lg bg-card/60 border border-border/40 px-3 py-2 text-[12px] text-dim/80">
+                  Base URL：<span className="text-dim">{apiBase}</span>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="text-[13px] text-dim">
-                  Embedding 用于简历 / 知识库 / 记忆向量化。免费示例:SiliconFlow 的 <span className="text-text">BAAI/bge-large-zh-v1.5</span>。可与 LLM 用不同服务商。
+                  Embedding 用于简历 / 知识库 / 记忆向量化。选择服务商，填写模型名和 API Key，可与 LLM 用不同服务商。
                 </div>
                 <div className="space-y-2">
-                  <Label className={labelClass}>API Base URL</Label>
-                  <Input className={inputClass} autoComplete="off" placeholder="例：https://api.siliconflow.cn/v1（OpenAI 官方可留空）" value={embApiBase} onChange={(e) => setEmbApiBase(e.target.value)} />
+                  <Label className={labelClass}>服务商</Label>
+                  <ProviderSelect
+                    value={embProvider}
+                    options={EMBEDDING_PROVIDERS}
+                    onChange={(id, opt) => {
+                      setEmbProvider(id);
+                      setEmbApiBase(opt.base_url);
+                    }}
+                  />
+                  <div className="text-[12px] text-dim/70">
+                    {EMBEDDING_PROVIDERS.find((o) => o.id === embProvider)?.hint}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label className={labelClass}>Embedding Model</Label>
-                  <Input className={inputClass} autoComplete="off" placeholder="例：BAAI/bge-m3" value={embApiModel} onChange={(e) => setEmbApiModel(e.target.value)} />
+                  <Input className={inputClass} autoComplete="off" placeholder="如 BAAI/bge-m3" value={embApiModel} onChange={(e) => setEmbApiModel(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label className={labelClass}>API Key</Label>
@@ -231,6 +266,9 @@ export default function Onboarding() {
                       {showEmbKey ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
+                </div>
+                <div className="rounded-lg bg-card/60 border border-border/40 px-3 py-2 text-[12px] text-dim/80">
+                  Base URL：<span className="text-dim">{embApiBase}</span>
                 </div>
               </div>
             )}

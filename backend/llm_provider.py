@@ -30,6 +30,31 @@ _embedding_cache: dict[str, tuple[str, object]] = {}
 _DEFAULT_TEMPERATURE = 0.7
 _COPILOT_TEMPERATURE = 0.3  # Copilot 场景偏确定性
 
+# 固定 LLM 服务商注册表。api_base 为空时回落到这里；Gemini 的 base_url 必须以 /
+# 结尾(openai SDK 路径拼接需要),其余按各服务商 OpenAI 兼容端点。
+LLM_PROVIDERS: dict[str, dict] = {
+    "openai": {
+        "label": "OpenAI",
+        "base_url": "https://api.openai.com/v1",
+    },
+    "bailian": {
+        "label": "阿里百炼",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    },
+    "deepseek": {
+        "label": "DeepSeek",
+        "base_url": "https://api.deepseek.com/v1",
+    },
+    "anthropic": {
+        "label": "Claude",
+        "base_url": "https://api.anthropic.com",
+    },
+    "gemini": {
+        "label": "Gemini",
+        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+    },
+}
+
 
 class ProviderNotConfigured(RuntimeError):
     """A user tried to use an LLM/Embedding they haven't configured. There is no
@@ -53,8 +78,12 @@ def resolve_llm_config(user_id: str | None = None) -> dict:
     uid = _effective_uid(user_id)
     override = load_user_provider(uid)[0] if uid else None
     if override is None:
-        return {"api_base": "", "api_key": "", "model": "", "temperature": _DEFAULT_TEMPERATURE}
+        return {
+            "provider": "", "api_base": "", "api_key": "",
+            "model": "", "temperature": _DEFAULT_TEMPERATURE,
+        }
     return {
+        "provider": override.provider,
         "api_base": override.api_base,
         "api_key": override.api_key,
         "model": override.model,
@@ -110,30 +139,52 @@ def _require_llm(c: dict):
         raise ProviderNotConfigured("LLM")
 
 
-def get_langchain_llm(user_id: str | None = None):
-    """LangChain ChatModel for LangGraph nodes (via OpenAI-compatible proxy)."""
-    c = resolve_llm_config(user_id)
-    _require_llm(c)
+def _llm_base_url(provider: str, api_base: str) -> str | None:
+    """Resolve the LLM endpoint: explicit api_base wins; else the provider's fixed
+    default (registry); empty/unknown provider with no api_base → None (SDK default)."""
+    if api_base:
+        return api_base
+    return LLM_PROVIDERS.get(provider, {}).get("base_url") or None
+
+
+def _build_llm_chat_model(c: dict, temperature: float, streaming: bool):
+    """Construct the LangChain ChatModel for the user's provider. All call sites use
+    the common BaseChatModel interface (.invoke/.astream), so only construction
+    dispatches by provider. Claude uses the native Anthropic API; everything else is
+    OpenAI-compatible (OpenAI / 阿里百炼 / DeepSeek / Gemini compat endpoint)."""
+    provider = c["provider"] or ""
+    base = _llm_base_url(provider, c["api_base"])
+    if provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(
+            model=c["model"],
+            api_key=c["api_key"],
+            base_url=base,
+            temperature=temperature,
+            streaming=streaming,
+        )
     return ChatOpenAI(
         model=c["model"],
         api_key=c["api_key"],
-        base_url=c["api_base"],
-        temperature=c["temperature"],
-        streaming=True,
+        base_url=base,
+        temperature=temperature,
+        streaming=streaming,
     )
+
+
+def get_langchain_llm(user_id: str | None = None):
+    """LangChain ChatModel for LangGraph nodes."""
+    c = resolve_llm_config(user_id)
+    _require_llm(c)
+    return _build_llm_chat_model(c, c["temperature"], streaming=True)
 
 
 def get_copilot_llm(user_id: str | None = None, streaming: bool = False):
     """Copilot uses the user's own main LLM (no separate Copilot provider)."""
     c = resolve_llm_config(user_id)
     _require_llm(c)
-    return ChatOpenAI(
-        model=c["model"],
-        api_key=c["api_key"],
-        base_url=c["api_base"],
-        temperature=_COPILOT_TEMPERATURE,
-        streaming=streaming,
-    )
+    return _build_llm_chat_model(c, _COPILOT_TEMPERATURE, streaming=streaming)
 
 
 # ── Embedding ──
@@ -233,16 +284,28 @@ def reset_embedding_cache(user_id: str | None = None):
 
 # ── Connectivity probes (test the *provided* config, not the saved one) ──
 
-def probe_llm(api_base: str, api_key: str, model: str) -> None:
-    """Verify an LLM config is reachable & valid by issuing a 1-token chat
-    completion. Returns None on success; raises (openai errors / ProviderNotConfigured)
-    on any failure. Drives the settings 'test connection' button and the onboarding
-    gate, so it tests the form values rather than what's persisted."""
-    from openai import OpenAI
-
+def probe_llm(provider: str, api_base: str, api_key: str, model: str) -> None:
+    """Verify an LLM config is reachable & valid by issuing a 1-token request.
+    Returns None on success; raises (SDK errors / ProviderNotConfigured) on any
+    failure. Drives the settings 'test connection' button and the onboarding gate,
+    so it tests the form values rather than what's persisted. `provider` picks the
+    SDK family (anthropic → Anthropic API, others → OpenAI-compatible)."""
     if not api_key or not model:
         raise ProviderNotConfigured("LLM")
-    client = OpenAI(api_key=api_key, base_url=api_base or None, timeout=20.0, max_retries=0)
+    base = _llm_base_url(provider, api_base)
+    if provider == "anthropic":
+        from anthropic import Anthropic
+
+        client = Anthropic(api_key=api_key, base_url=base, timeout=20.0, max_retries=0)
+        client.messages.create(
+            model=model,
+            max_tokens=1,
+            messages=[{"role": "user", "content": "ping"}],
+        )
+        return
+    from openai import OpenAI
+
+    client = OpenAI(api_key=api_key, base_url=base, timeout=20.0, max_retries=0)
     client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": "ping"}],

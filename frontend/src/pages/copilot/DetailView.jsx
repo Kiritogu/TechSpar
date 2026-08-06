@@ -21,7 +21,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 import PrepResultCards from "./PrepResultCards";
-import { PAGE_CLASS, formatFileSize } from "./shared";
+import { formatFileSize } from "./shared";
+import { PAGE_CLASS } from "@/lib/layout";
 
 function HintChip({ title, description }) {
   return (
@@ -219,7 +220,7 @@ export default function DetailView({ prepId: initialPrepId, onBack, onStartInter
                 )}
 
                 {isNew && (
-                  <div className="rounded-[28px] border border-border/80 bg-background/65 p-4 md:p-5">
+                  <div className="rounded-hero border border-border/80 bg-background/65 p-4 md:p-5">
                     <div className="flex flex-col gap-3 border-b border-border/70 pb-4 md:flex-row md:items-end md:justify-between">
                       <div>
                         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-dim/80">岗位 JD</div>
@@ -230,7 +231,7 @@ export default function DetailView({ prepId: initialPrepId, onBack, onStartInter
                       </div>
                     </div>
                     <Textarea
-                      className="mt-4 min-h-[280px] rounded-[24px] border-border/70 bg-background/80 px-4 py-4 text-[15px] leading-7 resize-y md:min-h-[360px]"
+                      className="mt-4 min-h-[280px] rounded-panel border-border/70 bg-background/80 px-4 py-4 text-[15px] leading-7 resize-y md:min-h-[360px]"
                       placeholder="粘贴完整 JD。优先保留职责、任职要求、加分项、业务背景和技术栈。"
                       value={jdText}
                       onChange={(event) => setJdText(event.target.value)}
@@ -247,7 +248,7 @@ export default function DetailView({ prepId: initialPrepId, onBack, onStartInter
                 <div className="mt-1 flex flex-col gap-1 rounded-2xl border border-border/40 bg-card/20 p-1.5">
                   <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
                     <div className="flex items-center gap-3.5">
-                      <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", resumeReady ? "bg-blue-500/10 text-blue-500" : "bg-dim/10 text-dim")}>
+                      <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", resumeReady ? "bg-teal/10 text-teal" : "bg-dim/10 text-dim")}>
                         <FileText size={16} />
                       </div>
                       <div className="flex flex-col gap-0.5">
@@ -266,7 +267,7 @@ export default function DetailView({ prepId: initialPrepId, onBack, onStartInter
 
                   <div className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors">
                     <div className="flex items-center gap-3.5">
-                      <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", topicCount > 0 ? "bg-purple-500/10 text-purple-500" : "bg-dim/10 text-dim")}>
+                      <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", topicCount > 0 ? "bg-teal/10 text-teal" : "bg-dim/10 text-dim")}>
                         <User size={16} />
                       </div>
                       <div className="flex flex-col gap-0.5">
@@ -318,7 +319,7 @@ export default function DetailView({ prepId: initialPrepId, onBack, onStartInter
                 </div>
                 <div className={cn(
                   "rounded-full border px-3 py-1 text-sm",
-                  isDone ? "border-green/20 bg-green/8 text-green" : isRunning ? "border-blue-500/20 bg-blue-500/8 text-blue-300" : "border-border/80 bg-card/82 text-text"
+                  isDone ? "border-green/20 bg-green/8 text-green" : isRunning ? "border-teal/20 bg-teal/8 text-teal" : "border-border/80 bg-card/82 text-text"
                 )}>
                   {isDone ? "已就绪" : isRunning ? "分析中" : "待开始"}
                 </div>

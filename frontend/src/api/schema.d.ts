@@ -1303,6 +1303,11 @@ export interface components {
          */
         LLMSettings: {
             /**
+             * Provider
+             * @default
+             */
+            provider: string;
+            /**
              * Api Base
              * @default
              */

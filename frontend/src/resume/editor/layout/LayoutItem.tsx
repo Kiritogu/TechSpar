@@ -180,7 +180,7 @@ const LayoutItem = ({
                       setActiveSection(fallbackSection.id);
                     }
                   }}
-                  className="bg-gradient-to-r from-rose-500 to-orange-400 hover:from-rose-600 hover:to-orange-500 text-white shadow-sm border-0"
+                  className="bg-gradient-to-r from-primary to-teal hover:brightness-110 text-white shadow-sm border-0"
                 >
                   {t("confirm")}
                 </AlertDialogAction>
