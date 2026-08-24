@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from backend.auth import get_current_user
+from backend.memory import _save_profile, get_profile
 from backend.runtime import _task_status
 from backend.storage.sessions import (
     STATUS_REVIEW_FAILED,
@@ -71,12 +72,65 @@ async def get_history(
     return list_sessions(user_id=user_id, limit=limit, offset=offset, mode=mode, topic=topic)
 
 
+def _topic_of_session(session: dict) -> str:
+    """主题优先取 session.topic,JD 备面类取 meta.position。"""
+    if not session:
+        return ""
+    return session.get("topic") or (session.get("meta") or {}).get("position") or ""
+
+
+def _remaining_session_topics(user_id: str) -> set:
+    topics: set = set()
+    result = list_sessions(user_id=user_id, limit=1000)
+    for s in result.get("items", []):
+        t = _topic_of_session(s)
+        if t:
+            topics.add(t)
+    return topics
+
+
+def _prune_orphaned_topic_profile(session: dict, user_id: str) -> None:
+    """删除一条训练记录后,若该主题已无任何剩余训练记录,清理画像中该主题的沉淀,
+    避免"删了记录但画像里还残留该领域的掌握度/薄弱点"。"""
+    topic = _topic_of_session(session)
+    if not topic or topic in _remaining_session_topics(user_id):
+        return
+
+    profile = get_profile(user_id)
+    changed = False
+
+    mastery = profile.get("topic_mastery")
+    if isinstance(mastery, dict) and topic in mastery:
+        del mastery[topic]
+        changed = True
+
+    wp = profile.get("weak_points")
+    if isinstance(wp, list):
+        filtered = [w for w in wp if w.get("topic") != topic]
+        if len(filtered) != len(wp):
+            profile["weak_points"] = filtered
+            changed = True
+
+    sp = profile.get("strong_points")
+    if isinstance(sp, list):
+        filtered = [s for s in sp if s.get("topic") != topic]
+        if len(filtered) != len(sp):
+            profile["strong_points"] = filtered
+            changed = True
+
+    if changed:
+        _save_profile(profile, user_id)
+
+
 @router.delete("/interview/session/{session_id}")
 async def delete_session_endpoint(session_id: str, user_id: str = Depends(get_current_user)):
-    """Delete a session record."""
+    """Delete a session record, and prune profile data for a topic that no longer
+    has any remaining training record."""
+    session = get_session(session_id, user_id=user_id)
     deleted = delete_session(session_id, user_id=user_id)
     if not deleted:
         raise HTTPException(404, "Session not found.")
+    _prune_orphaned_topic_profile(session, user_id)
     return {"ok": True}
 
 
