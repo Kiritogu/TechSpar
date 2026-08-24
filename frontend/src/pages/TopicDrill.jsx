@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Target, Play, Layers } from "lucide-react";
+import { Target, Play, Layers, Sparkles, Plus, Loader2 } from "lucide-react";
 import TopicCard from "../components/TopicCard";
-import { getTopics, startInterview } from "../api/interview";
+import TopicSuggestionModal from "../components/TopicSuggestionModal";
+import { getTopics, startInterview, suggestTopics, getResumeStatus } from "../api/interview";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,6 +14,9 @@ export default function TopicDrill() {
   const [topics, setTopics] = useState({});
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestion, setSuggestion] = useState(null);
+  const [hasResume, setHasResume] = useState(null);
   const { creatingSessionMode, setCreatingSessionMode } = useTaskStatus();
   const loading = creatingSessionMode === "topic_drill";
 
@@ -21,6 +25,12 @@ export default function TopicDrill() {
       .then(setTopics)
       .catch(() => setTopics({}))
       .finally(() => setPageLoading(false));
+  }, []);
+
+  useEffect(() => {
+    getResumeStatus()
+      .then((s) => setHasResume(!!s?.has_resume))
+      .catch(() => setHasResume(false));
   }, []);
 
   const handleStart = async () => {
@@ -33,6 +43,18 @@ export default function TopicDrill() {
       alert("启动失败: " + err.message);
     } finally {
       setCreatingSessionMode(null);
+    }
+  };
+
+  const handleSuggest = async () => {
+    setSuggesting(true);
+    try {
+      const s = await suggestTopics();
+      setSuggestion(s);
+    } catch (err) {
+      alert("生成领域建议失败: " + err.message);
+    } finally {
+      setSuggesting(false);
     }
   };
 
@@ -66,6 +88,47 @@ export default function TopicDrill() {
           {Array.from({ length: 8 }).map((_, i) => (
             <Skeleton key={i} className="h-[120px] rounded-2xl border border-border/50 bg-card/60" />
           ))}
+        </div>
+      ) : Object.keys(topics).length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-border/80 bg-card/40 backdrop-blur-sm px-6 py-14 md:py-16 text-center relative z-10 mb-28">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 border border-primary/15 flex items-center justify-center mb-5">
+            <Target size={24} className="text-primary" />
+          </div>
+          <div className="text-lg font-bold text-text mb-2">还没有可训练的专项领域</div>
+          <div className="text-[13px] text-dim/90 max-w-md mx-auto leading-relaxed mb-7">
+            {hasResume ? (
+              "已上传简历,可以让 AI 根据你的经历推荐最匹配的训练领域,也可以前往「题库」手动添加。"
+            ) : (
+              "先前往「题库」手动添加领域,添加后可以上传 Markdown 文件,或让 AI 生成核心知识与高频题。"
+            )}
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {hasResume && (
+              <Button
+                variant="gradient"
+                size="lg"
+                className="rounded-2xl font-bold shadow-lg shadow-primary/20"
+                onClick={handleSuggest}
+                disabled={suggesting}
+              >
+                {suggesting ? (
+                  <Loader2 size={16} className="animate-spin mr-2" />
+                ) : (
+                  <Sparkles size={16} className="mr-2" />
+                )}
+                {suggesting ? "生成建议中..." : "根据简历推荐领域"}
+              </Button>
+            )}
+            <Button
+              variant={hasResume ? "outline" : "gradient"}
+              size="lg"
+              className="rounded-2xl font-bold"
+              onClick={() => navigate("/knowledge")}
+            >
+              <Plus size={16} className="mr-2" />
+              去题库添加领域
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-28 relative z-10">
@@ -114,6 +177,17 @@ export default function TopicDrill() {
           )}
         </div>
       </div>
+      {/* 空状态下的简历推荐弹窗 */}
+      <TopicSuggestionModal
+        open={!!suggestion}
+        suggestion={suggestion}
+        onClose={() => setSuggestion(null)}
+        onApplied={() => {
+          getTopics()
+            .then(setTopics)
+            .catch(() => setTopics({}));
+        }}
+      />
     </div>
   );
 }
