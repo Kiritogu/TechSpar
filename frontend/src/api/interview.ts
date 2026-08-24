@@ -162,16 +162,6 @@ export async function startInterview(
   return res.json();
 }
 
-export async function inferTargetRole(): Promise<
-  ApiResponse<"/api/profile/infer-target-role", "post">
-> {
-  const res = await authFetch(`${API_BASE}/profile/infer-target-role`, {
-    method: "POST",
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-
 export async function previewJobPrep(
   payload: Record<string, unknown>
 ): Promise<ApiResponse<"/api/job-prep/preview", "post">> {

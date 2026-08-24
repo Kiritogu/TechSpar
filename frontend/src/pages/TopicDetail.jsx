@@ -114,11 +114,12 @@ export default function TopicDetail() {
     || "先把最近一次最低分题重新讲通，再继续新增题目。";
 
   const profileWeaknesses = (profile?.weak_points || [])
-    .filter((item) => item.topic === topic && !item.improved)
+    .filter((item) => item.topic === topic)
     .map((item) => ({
       point: item.point,
       count: item.times_seen || 1,
       lastSeen: item.last_seen || item.first_seen,
+      status: item.archived ? "archived" : item.improved ? "improved" : "pending",
     }));
   const sessionWeaknesses = sessionsDesc.flatMap((session) => {
     const items = session?.overall?.new_weak_points?.length ? session.overall.new_weak_points : session?.weak_points || [];
@@ -126,6 +127,7 @@ export default function TopicDetail() {
       point: normalizePoint(item),
       count: 1,
       lastSeen: session.created_at,
+      status: "session",
     }));
   });
   const recurringWeaknesses = buildPointFrequency([...profileWeaknesses, ...sessionWeaknesses]).slice(0, 6);
@@ -486,6 +488,12 @@ function InsightBlock({ title, value, body, tone = "default" }) {
   );
 }
 
+const STATUS_META = {
+  pending: { text: "待补", className: "border-red/30 bg-red/10 text-red" },
+  improved: { text: "已改进", className: "border-green/30 bg-green/10 text-green" },
+  archived: { text: "已归档", className: "border-border/70 bg-dim/10 text-dim" },
+};
+
 function SignalList({ items, tone, emptyText }) {
   if (!items.length) {
     return <DashboardEmpty message={emptyText} compact />;
@@ -506,9 +514,14 @@ function SignalList({ items, tone, emptyText }) {
               {item.count}x
             </Badge>
           </div>
-          {item.lastSeen && (
-            <div className="mt-2 text-xs text-dim">最近信号 {formatShortDate(item.lastSeen)}</div>
-          )}
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-dim">
+            {STATUS_META[item.status] && (
+              <span className={cn("rounded-full border px-2 py-0.5", STATUS_META[item.status].className)}>
+                {STATUS_META[item.status].text}
+              </span>
+            )}
+            {item.lastSeen && <span>最近信号 {formatShortDate(item.lastSeen)}</span>}
+          </div>
         </div>
       ))}
     </div>
@@ -699,6 +712,8 @@ function cleanHeading(value) {
   return value.replace(/\*\*/g, "").trim();
 }
 
+const STATUS_PRIORITY = { pending: 4, improved: 3, archived: 2, session: 1 };
+
 function buildPointFrequency(items = []) {
   const map = new Map();
 
@@ -709,11 +724,15 @@ function buildPointFrequency(items = []) {
     const key = point.toLowerCase();
     const count = Number(item?.count) || 1;
     const lastSeen = item?.lastSeen || "";
+    const status = item?.status || "session";
     const existing = map.get(key);
 
     if (existing) {
       existing.count += count;
       if (toTimestamp(lastSeen) > toTimestamp(existing.lastSeen)) existing.lastSeen = lastSeen;
+      if ((STATUS_PRIORITY[status] || 0) > (STATUS_PRIORITY[existing.status] || 0)) {
+        existing.status = status;
+      }
       continue;
     }
 
@@ -721,6 +740,7 @@ function buildPointFrequency(items = []) {
       point,
       count,
       lastSeen,
+      status,
     });
   }
 

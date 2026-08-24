@@ -153,9 +153,9 @@ export default function TopicDrill() {
         <div className="bg-card/95 backdrop-blur-xl p-3 md:pl-8 md:pr-3 rounded-3xl border border-border/80 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),0_0_20px_rgba(var(--primary-rgb),0.1)] flex items-center justify-between gap-4">
           
           <div className="flex flex-col ml-3 md:ml-0 overflow-hidden">
-            <span className="text-[11px] font-bold text-primary uppercase tracking-[0.2em] mb-0.5">即将出战专项</span>
+            <span className="text-[11px] font-bold text-primary uppercase tracking-[0.2em] mb-0.5">本次训练领域</span>
             <span className="text-[15px] font-extrabold text-text truncate">
-              {selectedTopic ? topics[selectedTopic]?.name || selectedTopic : "尚未集结部队"}
+              {selectedTopic ? topics[selectedTopic]?.name || selectedTopic : "尚未选择领域"}
             </span>
           </div>
 
@@ -172,7 +172,7 @@ export default function TopicDrill() {
               className="h-[52px] md:h-14 px-7 md:px-10 rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.03] shrink-0 font-bold"
               onClick={handleStart}
             >
-              启动降打击 <Play size={16} className="ml-2 fill-current" />
+              开始训练 <Play size={16} className="ml-2 fill-current" />
             </Button>
           )}
         </div>
