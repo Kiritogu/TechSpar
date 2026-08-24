@@ -545,6 +545,15 @@ export async function updateHighFreq(
   return res.json();
 }
 
+export async function generateHighFreq(topic: string) {
+  const res = await authFetch(
+    `${API_BASE}/knowledge/${encodeURIComponent(topic)}/high_freq/generate`,
+    { method: "POST" }
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
 // ── Settings ──
 
 export async function getSettings(): Promise<

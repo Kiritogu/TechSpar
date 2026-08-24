@@ -169,6 +169,37 @@ async def update_high_freq(topic: str, body: dict, user_id: str = Depends(get_cu
     return {"ok": True}
 
 
+@router.post("/knowledge/{topic}/high_freq/generate")
+async def generate_high_freq(topic: str, user_id: str = Depends(get_current_user)):
+    """Use LLM to generate a high-frequency question bank for a topic."""
+    topics = load_topics(user_id, include_hidden=True)
+    if topic not in topics:
+        raise HTTPException(400, f"Unknown topic: {topic}")
+
+    topic_name = topics[topic].get("name", topic)
+    llm = get_langchain_llm(user_id)
+    response = llm.invoke([
+        SystemMessage(content="你是一位资深技术面试官，熟悉各技术领域的高频面试真题。"),
+        HumanMessage(content=(
+            f"请为「{topic_name}」这个技术领域生成一份高频面试题清单，作为专项训练的题库。\n\n"
+            "要求：\n"
+            "- 用 Markdown 格式\n"
+            f"- 以 `# {topic_name} 高频面试题` 作为标题\n"
+            "- 列出 10-15 道该领域最高频的面试题，每道题用 `## ` 二级标题单独成题\n"
+            "- 题目要具体、有区分度，覆盖核心概念、原理、常见坑和实际场景\n"
+            "- 每题在标题下用 1-2 行点明考察意图或常见误区，帮助答题者自查\n"
+            "- 直接输出 Markdown 内容，不要包裹在代码块中"
+        )),
+    ])
+    content = response.content.strip()
+
+    hf_dir = settings.user_high_freq_path(user_id)
+    hf_dir.mkdir(parents=True, exist_ok=True)
+    filepath = hf_dir / f"{topic}.md"
+    filepath.write_text(content, encoding="utf-8")
+    return {"ok": True, "content": content}
+
+
 @router.get("/graph/{topic}")
 def get_topic_graph(topic: str, user_id: str = Depends(get_current_user)):
     """Build question relationship graph for a topic."""

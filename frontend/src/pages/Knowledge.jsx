@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { Menu, X, Sparkles, RotateCcw, Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import { getTopicIcon, ICON_OPTIONS } from "../utils/topicIcons";
 import {
   getTopics, getCoreKnowledge, updateCoreKnowledge, createCoreKnowledge,
   deleteCoreKnowledge, getHighFreq, updateHighFreq, createTopic, deleteTopic, generateKnowledge,
-  suggestTopics, restoreTopic,
+  generateHighFreq, suggestTopics, restoreTopic,
 } from "../api/interview";
 import TopicSuggestionModal from "../components/TopicSuggestionModal";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,10 @@ export default function Knowledge() {
 
   const [suggestion, setSuggestion] = useState(null);
   const [suggesting, setSuggesting] = useState(false);
+
+  const [hfGenerating, setHfGenerating] = useState(false);
+  const coreFileInputRef = useRef(null);
+  const hfFileInputRef = useRef(null);
 
   const refreshTopics = useCallback(async () => {
     const t = await getTopics(true);
@@ -149,6 +153,56 @@ export default function Knowledge() {
       setExpandedFile("README.md");
     } catch (e) { alert("生成失败: " + e.message); }
     setGenerating(false);
+  };
+
+  const handleUploadCore = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !selected) return;
+    if (!file.name.toLowerCase().endsWith(".md")) {
+      alert("请上传 Markdown 文件(.md)");
+      return;
+    }
+    try {
+      const content = await file.text();
+      const filename = file.name;
+      const exists = (coreFiles || []).some((f) => f.filename === filename);
+      if (exists) {
+        await updateCoreKnowledge(selected, filename, content);
+      } else {
+        await createCoreKnowledge(selected, filename, content);
+      }
+      await loadCore(selected);
+      setExpandedFile(filename);
+    } catch (err) { alert("上传失败: " + err.message); }
+  };
+
+  const handleGenerateHighFreq = async () => {
+    setHfGenerating(true);
+    try {
+      const data = await generateHighFreq(selected);
+      setHighFreq(data.content || "");
+      setHighFreqDraft(data.content || "");
+      setHfEditing(false);
+    } catch (e) { alert("生成失败: " + e.message); }
+    setHfGenerating(false);
+  };
+
+  const handleUploadHighFreq = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !selected) return;
+    if (!file.name.toLowerCase().endsWith(".md")) {
+      alert("请上传 Markdown 文件(.md)");
+      return;
+    }
+    try {
+      const content = await file.text();
+      await updateHighFreq(selected, content);
+      setHighFreq(content);
+      setHighFreqDraft(content);
+      setHfEditing(false);
+    } catch (err) { alert("上传失败: " + err.message); }
   };
 
   const coreIsEmpty = coreFiles.length === 0 ||
@@ -336,8 +390,9 @@ export default function Knowledge() {
                     <Button variant="outline" size="sm" onClick={() => { setShowNewFile(false); setNewFileName(""); }}>取消</Button>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={() => setShowNewFile(true)}>+ 新增文件</Button>
+                    <Button variant="outline" size="sm" onClick={() => coreFileInputRef.current?.click()}>上传 Markdown</Button>
                     {coreIsEmpty && (
                       <Button variant="outline" size="sm" className="border-primary/40 text-primary" onClick={handleGenerate} disabled={generating}>
                         {generating ? "正在生成..." : <><Sparkles size={14} /> AI 生成基础内容</>}
@@ -346,6 +401,7 @@ export default function Knowledge() {
                   </div>
                 )}
               </div>
+              <input ref={coreFileInputRef} type="file" accept=".md,text/markdown" className="hidden" onChange={handleUploadCore} />
 
               {coreFiles.length === 0 ? (
                 <div className="text-center py-15 text-dim text-sm">该领域暂无知识文件</div>
@@ -406,9 +462,16 @@ export default function Knowledge() {
             </div>
           ) : (
             <div>
-              <div className="text-[13px] text-dim mb-3">
+              <div className="text-[13px] text-dim">
                 标记的高频面试考点，出题时会优先覆盖。建议一行一题，或一个「##」标题一题，方便出题精准覆盖。
               </div>
+              <div className="flex gap-2 flex-wrap mt-3 mb-4">
+                <Button variant="outline" size="sm" onClick={() => hfFileInputRef.current?.click()}>上传 Markdown</Button>
+                <Button variant="outline" size="sm" className="border-primary/40 text-primary" onClick={handleGenerateHighFreq} disabled={hfGenerating}>
+                  {hfGenerating ? "正在生成..." : <><Sparkles size={14} /> AI 生成高频题</>}
+                </Button>
+              </div>
+              <input ref={hfFileInputRef} type="file" accept=".md,text/markdown" className="hidden" onChange={handleUploadHighFreq} />
               {hfEditing ? (
                 <>
                   <textarea
